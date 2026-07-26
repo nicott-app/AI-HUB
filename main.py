@@ -51,10 +51,6 @@ def inject_nav_css():
             font-weight: 600;
         }
 
-        /* Ocultar el label nativo del widget de navegación */
-        section[data-testid="stSidebar"] .stRadio > label {
-            display: none !important;
-        }
 
         /* Sección label */
         .nav-section-label {
