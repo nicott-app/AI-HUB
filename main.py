@@ -62,32 +62,6 @@ def inject_nav_css():
             font-weight: 700;
         }
 
-        /* Radio buttons — estilizados como nav items */
-        section[data-testid="stSidebar"] .stRadio > div {
-            gap: 0 !important;
-        }
-        section[data-testid="stSidebar"] .stRadio label {
-            display: flex !important;
-            align-items: center !important;
-            padding: 0.65rem 1.25rem !important;
-            margin: 0.1rem 0.6rem !important;
-            border-radius: 8px !important;
-            cursor: pointer !important;
-            transition: all 0.15s ease !important;
-            color: #4b5563 !important;
-            font-size: 0.88rem !important;
-            font-weight: 500 !important;
-            background: transparent !important;
-        }
-        section[data-testid="stSidebar"] .stRadio label:hover {
-            background: #eef0fb !important;
-            color: #3730a3 !important;
-        }
-        /* Ocultar el bullet nativo del radio */
-        section[data-testid="stSidebar"] .stRadio [data-baseweb="radio"] {
-            display: none !important;
-        }
-
         /* Divisor decorativo en el sidebar */
         .nav-divider {
             margin: 1rem 1.5rem 0;
