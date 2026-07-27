@@ -22,9 +22,22 @@ logger = logging.getLogger(__name__)
 class LLMService:
     def __init__(self):
         import os
+        
+        # 1. Intentar variable de entorno local (.env)
         self.api_key = os.getenv("GROQ_API_KEY")
+        
+        # 2. Intentar Streamlit Secrets si está en la nube
         if not self.api_key:
-            logger.warning("GROQ_API_KEY no encontrada en las variables de entorno.")
+            try:
+                import streamlit as st
+                self.api_key = st.secrets.get("GROQ_API_KEY")
+            except Exception:
+                pass
+                
+        if not self.api_key:
+            logger.warning("GROQ_API_KEY no encontrada. Configúrala en Streamlit Secrets.")
+            self.api_key = "MISSING_API_KEY" # Para evitar TypeError en Groq()
+            
         self.client = Groq(api_key=self.api_key)
         self.model = LLM_MODEL
 
