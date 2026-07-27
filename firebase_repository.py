@@ -39,23 +39,38 @@ class FirebaseRepository(TicketRepository):
     def _initialize(self) -> None:
         if not firebase_admin._apps:
             try:
-                # 1. Intentar leer desde variable de entorno (Streamlit Secrets)
-                env_cred = os.getenv("FIREBASE_CREDENTIALS")
-                if env_cred:
-                    import json
-                    cred_dict = json.loads(env_cred)
+                import json
+                cred_dict = None
+
+                # 1. Streamlit Secrets (producción en la nube)
+                try:
+                    import streamlit as st
+                    raw = st.secrets.get("FIREBASE_CREDENTIALS")
+                    if raw:
+                        cred_dict = json.loads(raw) if isinstance(raw, str) else dict(raw)
+                except Exception:
+                    pass
+
+                # 2. Variable de entorno (fallback)
+                if not cred_dict:
+                    env_cred = os.getenv("FIREBASE_CREDENTIALS")
+                    if env_cred:
+                        cred_dict = json.loads(env_cred)
+
+                # 3. Archivo local (desarrollo)
+                if cred_dict:
                     cred = credentials.Certificate(cred_dict)
                 else:
-                    # 2. Fallback a archivo local (Desarrollo)
                     cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "./firebase-credentials.json")
-                    if not os.path.exists(cred_path):
-                        cred = credentials.ApplicationDefault()
-                    else:
+                    if os.path.exists(cred_path):
                         cred = credentials.Certificate(cred_path)
-                
+                    else:
+                        cred = credentials.ApplicationDefault()
+
                 firebase_admin.initialize_app(cred)
                 self._db = firestore.client()
                 logger.info("Firebase inicializado correctamente.")
+
             except Exception as e:
                 logger.error(f"No se pudo inicializar Firebase: {e}")
         else:
