@@ -142,11 +142,21 @@ class FirebaseRepository(TicketRepository):
                 try:
                     data = doc.to_dict()
                     status = str(data.get("status", "")).lower()
-                    if status not in DONE_STATUSES and data.get("type") in STORY_TYPES:
+                    is_archived = data.get("archived", False)
+                    
+                    if status not in DONE_STATUSES and data.get("type") in STORY_TYPES and not is_archived:
                         if not data.get("title"): data["title"] = "Sin título"
                         if not data.get("description"): data["description"] = ""
+                        
+                        # Pragma guarda el ID visual (TC-123) en el campo "id". 
+                        # Lo rescatamos a "code" ANTES de sobreescribirlo con el hash de Firestore.
+                        visual_id = data.get("id") or data.get("code")
                         data["id"] = doc.id
-                        data["code"] = self._display_id(doc.id, data)
+                        if visual_id:
+                            data["code"] = visual_id
+                        else:
+                            data["code"] = self._display_id(doc.id, data)
+                            
                         result.append(UserStory(**data))
                 except Exception as e:
                     logger.warning(f"Error parseando ticket {doc.id}: {e}")
