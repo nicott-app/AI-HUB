@@ -169,24 +169,43 @@ class FirebaseRepository(TicketRepository):
         try:
             ticket_dict = ticket.model_dump(exclude_none=True, exclude={"id"})
             
-            # Pragma usa Timestamps nativos de Firestore en su frontend.
-            # Si le mandamos un string ISO, el frontend de React/JS probablemente crashee al hacer .toDate()
+            # --- ADAPTACIONES PARA EL FRONTEND DE PRAGMA ---
+            
+            # 1. Fechas a Timestamp nativo
             ticket_dict["updatedAt"] = firestore.SERVER_TIMESTAMP
-            # Solo sobreescribir createdAt si parece que lo acabamos de crear (string ISO)
             if "createdAt" in ticket_dict and isinstance(ticket_dict["createdAt"], str):
                 ticket_dict["createdAt"] = firestore.SERVER_TIMESTAMP
                 
-            # Pragma necesita el campo 'order' para el Kanban
+            # 2. El tablero Kanban de Pragma usa 'backlog', no 'todo'
+            if ticket_dict.get("status") == "todo":
+                ticket_dict["status"] = "backlog"
+                
+            # 3. Pragma usa camelCase para los Story Points
+            if "story_points" in ticket_dict:
+                ticket_dict["storyPoints"] = ticket_dict.pop("story_points")
+                
+            # 4. Inyección de campos obligatorios para evitar crashes en React
             if "order" not in ticket_dict:
                 ticket_dict["order"] = 0
+            if "history" not in ticket_dict:
+                ticket_dict["history"] = []
+            if "isBlocked" not in ticket_dict:
+                ticket_dict["isBlocked"] = False
+            if "archived" not in ticket_dict:
+                ticket_dict["archived"] = False
                 
-            # Si hay parent_id guardado en sesión, lo inyectamos (por si Pragma lo soporta)
+            # Si hay parent_id guardado en sesión, lo inyectamos
             import streamlit as st
             parent_id = st.session_state.get("selected_epic_id")
             if parent_id:
                 ticket_dict["parentId"] = parent_id
 
+            # Guardamos el documento
             _, doc_ref = self._tickets_ref(project_id).add(ticket_dict)
+            
+            # 5. Pragma a veces requiere que el ID del documento exista dentro de las propiedades
+            doc_ref.update({"id": doc_ref.id})
+            
             return doc_ref.id
         except Exception as e:
             logger.error(f"Error guardando ticket: {e}")
