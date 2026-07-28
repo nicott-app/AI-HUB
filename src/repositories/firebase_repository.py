@@ -157,7 +157,7 @@ class FirebaseRepository(TicketRepository):
 
     def save_ticket(self, project_id: str, ticket: Any) -> str:
         now = self._now_iso()
-        if not ticket.createdAt:
+        if not getattr(ticket, "createdAt", None):
             ticket.createdAt = now
         ticket.updatedAt = now
 
@@ -168,6 +168,24 @@ class FirebaseRepository(TicketRepository):
 
         try:
             ticket_dict = ticket.model_dump(exclude_none=True, exclude={"id"})
+            
+            # Pragma usa Timestamps nativos de Firestore en su frontend.
+            # Si le mandamos un string ISO, el frontend de React/JS probablemente crashee al hacer .toDate()
+            ticket_dict["updatedAt"] = firestore.SERVER_TIMESTAMP
+            # Solo sobreescribir createdAt si parece que lo acabamos de crear (string ISO)
+            if "createdAt" in ticket_dict and isinstance(ticket_dict["createdAt"], str):
+                ticket_dict["createdAt"] = firestore.SERVER_TIMESTAMP
+                
+            # Pragma necesita el campo 'order' para el Kanban
+            if "order" not in ticket_dict:
+                ticket_dict["order"] = 0
+                
+            # Si hay parent_id guardado en sesión, lo inyectamos (por si Pragma lo soporta)
+            import streamlit as st
+            parent_id = st.session_state.get("selected_epic_id")
+            if parent_id:
+                ticket_dict["parentId"] = parent_id
+
             _, doc_ref = self._tickets_ref(project_id).add(ticket_dict)
             return doc_ref.id
         except Exception as e:
