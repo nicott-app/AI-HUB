@@ -301,24 +301,57 @@ def render_epic_breaker():
                 parent_id = st.session_state.get("selected_epic_id")
 
                 if not project_id:
-                    st.error("No hay proyecto destino configurado.")
+                    st.error("❌ No hay proyecto destino configurado. Vuelve atrás y selecciona un proyecto.")
                 else:
-                    with st.spinner("Sincronizando con la Base de Datos..."):
-                        try:
-                            if not parent_id:
-                                repo.save_ticket(project_id, epic)
+                    progress = st.progress(0, text="Preparando envío...")
+                    try:
+                        # Paso 1: Guardar épica si es nueva
+                        if not parent_id:
+                            progress.progress(10, text="Guardando épica en Firebase...")
+                            repo.save_ticket(project_id, epic)
 
-                            for story in stories:
-                                if epic.title:
-                                    story.tags = story.tags or []
+                        # Paso 2: Enriquecer historias con la tag de la épica
+                        progress.progress(30, text="Enriqueciendo historias...")
+                        for story in stories:
+                            if epic.title:
+                                story.tags = story.tags or []
+                                if f"epic:{epic.title}" not in story.tags:
                                     story.tags.append(f"epic:{epic.title}")
 
-                            repo.save_tickets_batch(project_id, stories)
-                            cached_epics.clear()
-                            cached_stories.clear()
+                        # Paso 3: Enviar historias una por una (sin threads, para evitar problemas en Streamlit Cloud)
+                        total = len(stories)
+                        saved_ids = []
+                        for i, story in enumerate(stories):
+                            progress.progress(
+                                30 + int(60 * (i + 1) / total),
+                                text=f"Enviando historia {i+1}/{total}: {story.title[:40]}..."
+                            )
+                            sid = repo.save_ticket(project_id, story)
+                            saved_ids.append(sid)
 
-                            st.success("¡Sincronización exitosa!")
-                            del st.session_state["generated_stories"]
-                            st.rerun()
-                        except Exception as e:
-                            st.error(f"Fallo en la conexión: {e}")
+                        # Paso 4: Limpiar caché
+                        progress.progress(95, text="Limpiando caché...")
+                        cached_epics.clear()
+                        cached_stories.clear()
+
+                        progress.progress(100, text="¡Listo!")
+
+                        # Mostrar resultado y limpiar sin st.rerun() inmediato
+                        st.success(
+                            f"✅ **¡{total} historia{'s' if total > 1 else ''} enviada{'s' if total > 1 else ''} a Pragma!** "
+                            f"Ya puedes verlas en tu tablero en el proyecto seleccionado."
+                        )
+                        st.balloons()
+                        st.session_state["send_success"] = True
+                        del st.session_state["generated_stories"]
+
+                    except Exception as e:
+                        progress.empty()
+                        st.error(f"❌ **Fallo en el envío:** {str(e)}")
+                        st.info("Revisa los logs en 'Manage app' de Streamlit Cloud para más detalles.")
+
+        # Botón de regreso tras éxito
+        if st.session_state.get("send_success"):
+            if st.button("← Volver al inicio", type="secondary"):
+                del st.session_state["send_success"]
+                st.rerun()
