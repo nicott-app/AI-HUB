@@ -167,7 +167,7 @@ class FirebaseRepository(TicketRepository):
             return f"fake-id-{random.randint(1000, 9999)}"
 
         try:
-            ticket_dict = ticket.model_dump(exclude_none=True, exclude={"id"})
+            ticket_dict = ticket.model_dump(exclude_none=True, exclude={"id", "code"})
             
             # --- ADAPTACIONES PARA EL FRONTEND DE PRAGMA ---
             
@@ -180,7 +180,7 @@ class FirebaseRepository(TicketRepository):
             if ticket_dict.get("status") == "todo":
                 ticket_dict["status"] = "backlog"
                 
-            # 3. Pragma usa camelCase para los Story Points
+            # 3. Pragma usa camelCase para los Story Points y maneja estimatedHours nativamente
             if "story_points" in ticket_dict:
                 ticket_dict["storyPoints"] = ticket_dict.pop("story_points")
                 
@@ -200,11 +200,36 @@ class FirebaseRepository(TicketRepository):
             if parent_id:
                 ticket_dict["parentId"] = parent_id
 
+            # --- ASIGNACIÓN DE ID CON PREFIJO (ej: DA-123) ---
+            try:
+                proj_doc = self._db.collection("projects").document(project_id).get()
+                if proj_doc.exists:
+                    prefix = proj_doc.to_dict().get("ticketPrefix")
+                    if prefix:
+                        # Buscar el mayor ticket con este prefijo para autoincrementar
+                        existing = self._tickets_ref(project_id).where("id", ">=", f"{prefix}-").where("id", "<", f"{prefix}-\uf8ff").get()
+                        max_num = 0
+                        for t in existing:
+                            tid = t.to_dict().get("id", "")
+                            if tid.startswith(f"{prefix}-"):
+                                try:
+                                    num = int(tid.split("-")[1])
+                                    if num > max_num:
+                                        max_num = num
+                                except ValueError:
+                                    pass
+                        # Asignamos el nuevo ID formateado
+                        ticket_dict["id"] = f"{prefix}-{str(max_num + 1).zfill(3)}"
+            except Exception as e:
+                logger.warning(f"No se pudo generar ID con prefijo: {e}")
+
             # Guardamos el documento
             _, doc_ref = self._tickets_ref(project_id).add(ticket_dict)
             
             # 5. Pragma a veces requiere que el ID del documento exista dentro de las propiedades
-            doc_ref.update({"id": doc_ref.id})
+            # Si no conseguimos generar un ID con prefijo, usamos el de Firestore
+            if "id" not in ticket_dict:
+                doc_ref.update({"id": doc_ref.id})
             
             return doc_ref.id
         except Exception as e:
