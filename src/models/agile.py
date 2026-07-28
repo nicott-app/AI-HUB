@@ -49,8 +49,9 @@ class Epic(BaseTicket):
 
 
 class UserStory(BaseTicket):
-    type: str = Field(default="tarea")
+    type: str = Field(description="Tipo de ticket: 'tarea', 'desarrollo', 'mejora', 'bug'")
     story_points: Optional[int] = Field(default=None)
+    estimatedHours: Optional[int] = Field(default=None, description="Estimación en horas")
 
 
 class PrioritizedStory(UserStory):
