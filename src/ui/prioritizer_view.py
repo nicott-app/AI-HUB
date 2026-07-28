@@ -36,12 +36,24 @@ def render_prioritizer():
 
     st.markdown("**3. Tickets a evaluar:**")
     st.caption(f"{len(stories)} tickets disponibles. Marca los que quieras incluir en el análisis.")
+    
+    search_query = st.text_input("🔍 Buscar tickets por título o ID:", "").strip().lower()
 
     def sort_key(s):
         parts = (s.id or "").split("-")
         return (0, parts[0], int(parts[-1])) if len(parts) == 2 and parts[-1].isdigit() else (1, s.id or "", 0)
 
     sorted_stories = sorted(stories, key=sort_key)
+    
+    if search_query:
+        sorted_stories = [
+            s for s in sorted_stories 
+            if search_query in s.title.lower() or search_query in (s.code or s.id or "").lower()
+        ]
+
+    if not sorted_stories:
+        st.info("No hay tickets que coincidan con la búsqueda.")
+        
     cols = st.columns(3)
     selected_ids = []
 
