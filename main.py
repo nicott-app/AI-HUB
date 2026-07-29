@@ -248,6 +248,9 @@ def render_sidebar() -> str:
     return PAGES[st.session_state.current_page]
 
 
+def change_page(new_page: str):
+    st.session_state.current_page = new_page
+
 def render_home():
     # Renderizamos solo la cabecera en un string HTML
     html_header = """<div class="home-container" style="padding-bottom: 0;">
@@ -256,7 +259,7 @@ def render_home():
 </div>"""
     st.markdown(html_header, unsafe_allow_html=True)
     
-    # Renderizamos las tarjetas usando columnas de Streamlit para poder inyectar botones nativos debajo
+    # Renderizamos las tarjetas usando columnas de Streamlit
     c1, c2 = st.columns(2, gap="large")
     with c1:
         st.markdown("""<div class="tool-card" style="width: 100%; min-width: auto; margin-bottom: 1rem;">
@@ -267,9 +270,13 @@ def render_home():
 </div>
 <div class="card-footer">Tecnología: Groq · Llama 3.3 70B</div>
 </div>""", unsafe_allow_html=True)
-        if st.button("Abrir Troceador de Épicas", use_container_width=True, type="primary"):
-            st.session_state.current_page = "🪓 Troceador de Épicas"
-            st.rerun()
+        st.button(
+            "Abrir Troceador de Épicas", 
+            use_container_width=True, 
+            type="primary", 
+            on_click=change_page, 
+            args=("🪓 Troceador de Épicas",)
+        )
             
     with c2:
         st.markdown("""<div class="tool-card" style="width: 100%; min-width: auto; margin-bottom: 1rem;">
@@ -280,9 +287,13 @@ def render_home():
 </div>
 <div class="card-footer">Tecnología: Groq · Firebase Firestore</div>
 </div>""", unsafe_allow_html=True)
-        if st.button("Abrir Priorizador Multipropósito", use_container_width=True, type="primary"):
-            st.session_state.current_page = "📊 Priorizador Multipropósito"
-            st.rerun()
+        st.button(
+            "Abrir Priorizador Multipropósito", 
+            use_container_width=True, 
+            type="primary", 
+            on_click=change_page, 
+            args=("📊 Priorizador Multipropósito",)
+        )
 
 
 def main() -> None:
