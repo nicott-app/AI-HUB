@@ -92,6 +92,46 @@ def inject_nav_css():
             padding-bottom: 2rem !important;
         }
         
+        /* ─── ESTILOS DEL MENÚ DE NAVEGACIÓN (st.radio) ─── */
+        /* Ocultar el círculo nativo del radio button */
+        div[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {
+            display: none !important;
+        }
+        /* Estilo base para las opciones del menú */
+        div[data-testid="stRadio"] div[role="radiogroup"] label {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.2rem;
+            background-color: transparent;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        /* Efecto hover */
+        div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
+            background-color: #f3f4f6;
+        }
+        /* Estilo para la opción activa (usando :has) */
+        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
+            background-color: #f3e8ff;
+        }
+        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) p {
+            color: #7c3aed !important;
+            font-weight: 700 !important;
+        }
+
+        /* ─── ESTILO BOTONES PRINCIPALES ─── */
+        button[kind="primary"] {
+            background: linear-gradient(90deg, #7c3aed, #ea580c) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            color: white !important;
+            font-weight: 600 !important;
+            transition: opacity 0.2s !important;
+        }
+        button[kind="primary"]:hover {
+            opacity: 0.9 !important;
+        }
+        
         /* HOME PAGE STYLES */
         .home-container {
             text-align: center;
@@ -190,42 +230,59 @@ def render_sidebar() -> str:
 
         st.markdown('<div class="nav-section-label">Herramientas</div>', unsafe_allow_html=True)
 
-        # Navegación con radio buttons estilizados
+        # Inicializar estado si no existe
+        page_keys = list(PAGES.keys())
+        if "current_page" not in st.session_state:
+            st.session_state.current_page = page_keys[0]
+
+        # Navegación con radio buttons
         page = st.radio(
             label="",
-            options=list(PAGES.keys()),
+            options=page_keys,
             label_visibility="collapsed",
+            key="current_page"
         )
 
         st.markdown('<hr class="nav-divider">', unsafe_allow_html=True)
 
-    return PAGES[page]
+    return PAGES[st.session_state.current_page]
 
 
 def render_home():
-    html_content = """<div class="home-container">
+    # Renderizamos solo la cabecera en un string HTML
+    html_header = """<div class="home-container" style="padding-bottom: 0;">
 <h1 class="home-title">Bienvenido a Pragma AI Hub</h1>
-<p class="home-subtitle">Tu espacio de trabajo para la gestión ágil potenciada por Inteligencia Artificial.</p>
-<div class="cards-container">
-<div class="tool-card">
+<p class="home-subtitle" style="margin-bottom: 1.5rem;">Tu espacio de trabajo para la gestión ágil potenciada por Inteligencia Artificial.</p>
+</div>"""
+    st.markdown(html_header, unsafe_allow_html=True)
+    
+    # Renderizamos las tarjetas usando columnas de Streamlit para poder inyectar botones nativos debajo
+    c1, c2 = st.columns(2, gap="large")
+    with c1:
+        st.markdown("""<div class="tool-card" style="width: 100%; min-width: auto; margin-bottom: 1rem;">
 <div class="card-content">
 <div class="card-icon" style="color: #7c3aed;">🪓</div>
 <h2 class="card-title title-purple">Troceador de Épicas</h2>
 <p class="card-desc">Describe una épica y deja que Llama 3 la descomponga automáticamente en historias de usuario listas para el Sprint, con criterios de aceptación y story points estimados.</p>
 </div>
 <div class="card-footer">Tecnología: Groq · Llama 3.3 70B</div>
-</div>
-<div class="tool-card">
+</div>""", unsafe_allow_html=True)
+        if st.button("Abrir Troceador de Épicas", use_container_width=True, type="primary"):
+            st.session_state.current_page = "🪓 Troceador de Épicas"
+            st.rerun()
+            
+    with c2:
+        st.markdown("""<div class="tool-card" style="width: 100%; min-width: auto; margin-bottom: 1rem;">
 <div class="card-content">
 <div class="card-icon" style="color: #ea580c;">📊</div>
 <h2 class="card-title title-orange">Priorizador Multipropósito</h2>
 <p class="card-desc">Evalúa tu backlog con los frameworks más usados en la industria: RICE, WSJF, MoSCoW, Kano y la Matriz Valor vs. Complejidad, con scores calculados por IA.</p>
 </div>
 <div class="card-footer">Tecnología: Groq · Firebase Firestore</div>
-</div>
-</div>
-</div>"""
-    st.markdown(html_content, unsafe_allow_html=True)
+</div>""", unsafe_allow_html=True)
+        if st.button("Abrir Priorizador Multipropósito", use_container_width=True, type="primary"):
+            st.session_state.current_page = "📊 Priorizador Multipropósito"
+            st.rerun()
 
 
 def main() -> None:
