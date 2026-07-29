@@ -202,8 +202,10 @@ def render_sidebar() -> str:
     return PAGES[page]
 
 
+import textwrap
+
 def render_home():
-    st.markdown("""
+    html_content = textwrap.dedent("""
         <div class="home-container">
             <h1 class="home-title">Bienvenido a Pragma AI Hub</h1>
             <p class="home-subtitle">Tu espacio de trabajo para la gestión ágil potenciada por Inteligencia Artificial.</p>
@@ -228,7 +230,8 @@ def render_home():
                 </div>
             </div>
         </div>
-    """, unsafe_allow_html=True)
+    """)
+    st.markdown(html_content, unsafe_allow_html=True)
 
 
 def main() -> None:
