@@ -202,35 +202,29 @@ def render_sidebar() -> str:
     return PAGES[page]
 
 
-import textwrap
-
 def render_home():
-    html_content = textwrap.dedent("""
-        <div class="home-container">
-            <h1 class="home-title">Bienvenido a Pragma AI Hub</h1>
-            <p class="home-subtitle">Tu espacio de trabajo para la gestión ágil potenciada por Inteligencia Artificial.</p>
-            
-            <div class="cards-container">
-                <div class="tool-card">
-                    <div class="card-content">
-                        <div class="card-icon" style="color: #7c3aed;">🪓</div>
-                        <h2 class="card-title title-purple">Troceador de Épicas</h2>
-                        <p class="card-desc">Describe una épica y deja que Llama 3 la descomponga automáticamente en historias de usuario listas para el Sprint, con criterios de aceptación y story points estimados.</p>
-                    </div>
-                    <div class="card-footer">Tecnología: Groq · Llama 3.3 70B</div>
-                </div>
-                
-                <div class="tool-card">
-                    <div class="card-content">
-                        <div class="card-icon" style="color: #ea580c;">📊</div>
-                        <h2 class="card-title title-orange">Priorizador Multipropósito</h2>
-                        <p class="card-desc">Evalúa tu backlog con los frameworks más usados en la industria: RICE, WSJF, MoSCoW, Kano y la Matriz Valor vs. Complejidad, con scores calculados por IA.</p>
-                    </div>
-                    <div class="card-footer">Tecnología: Groq · Firebase Firestore</div>
-                </div>
-            </div>
-        </div>
-    """)
+    html_content = """<div class="home-container">
+<h1 class="home-title">Bienvenido a Pragma AI Hub</h1>
+<p class="home-subtitle">Tu espacio de trabajo para la gestión ágil potenciada por Inteligencia Artificial.</p>
+<div class="cards-container">
+<div class="tool-card">
+<div class="card-content">
+<div class="card-icon" style="color: #7c3aed;">🪓</div>
+<h2 class="card-title title-purple">Troceador de Épicas</h2>
+<p class="card-desc">Describe una épica y deja que Llama 3 la descomponga automáticamente en historias de usuario listas para el Sprint, con criterios de aceptación y story points estimados.</p>
+</div>
+<div class="card-footer">Tecnología: Groq · Llama 3.3 70B</div>
+</div>
+<div class="tool-card">
+<div class="card-content">
+<div class="card-icon" style="color: #ea580c;">📊</div>
+<h2 class="card-title title-orange">Priorizador Multipropósito</h2>
+<p class="card-desc">Evalúa tu backlog con los frameworks más usados en la industria: RICE, WSJF, MoSCoW, Kano y la Matriz Valor vs. Complejidad, con scores calculados por IA.</p>
+</div>
+<div class="card-footer">Tecnología: Groq · Firebase Firestore</div>
+</div>
+</div>
+</div>"""
     st.markdown(html_content, unsafe_allow_html=True)
 
 
