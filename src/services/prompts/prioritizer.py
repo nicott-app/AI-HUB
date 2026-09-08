@@ -73,15 +73,17 @@ _VC_ORDER = {"Quick Win": 1, "Major Project": 2, "Fill In": 3, "Thankless Task":
 def build_payload(stories: List[UserStory]) -> str:
     """Construye el payload JSON mínimo para el LLM (solo id, title, description)."""
     return json.dumps([
-        {"id": s.id, "title": s.title, "description": s.description}
-        for s in stories if s.id
+        # Si no hay ID (pipeline), usamos su índice como ID temporal
+        {"id": s.id or str(idx), "title": s.title, "description": s.description}
+        for idx, s in enumerate(stories)
     ])
 
 
 def parse_and_sort(content: str, stories: List[UserStory], framework: str) -> List[PrioritizedStory]:
     """Parsea la respuesta del LLM, construye PrioritizedStory y ordena por score."""
     data = json.loads(content)
-    results_map = {item["id"]: item["score"] for item in data.get("results", [])}
+    # Map de resultados: la IA nos devuelve el 'id' (que puede ser el ID real o el temporal)
+    results_map = {str(item["id"]): item["score"] for item in data.get("results", [])}
 
     score_builders = {
         "RICE": lambda d: ("rice_score", RICEScore(**d)),
@@ -92,12 +94,16 @@ def parse_and_sort(content: str, stories: List[UserStory], framework: str) -> Li
     }
 
     prioritized = []
-    for s in stories:
-        if s.id not in results_map:
+    for idx, s in enumerate(stories):
+        # Buscamos por el ID real, y si no tiene (pipeline), buscamos por su índice temporal
+        lookup_id = str(s.id) if s.id else str(idx)
+        
+        if lookup_id not in results_map:
             continue
+            
         try:
             p = PrioritizedStory(**s.model_dump())
-            field, score_obj = score_builders[framework](results_map[s.id])
+            field, score_obj = score_builders[framework](results_map[lookup_id])
             setattr(p, field, score_obj)
             prioritized.append(p)
         except Exception as e:

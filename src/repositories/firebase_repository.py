@@ -38,15 +38,41 @@ class FirebaseRepository(TicketRepository):
 
     def _initialize(self) -> None:
         if not firebase_admin._apps:
-            cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "./firebase-credentials.json")
             try:
-                if not os.path.exists(cred_path):
-                    cred = credentials.ApplicationDefault()
+                import json
+                cred_dict = None
+
+                # 1. Streamlit Secrets — formato sección [firebase] (más fiable en la nube)
+                try:
+                    import streamlit as st
+                    if "firebase" in st.secrets:
+                        cred_dict = dict(st.secrets["firebase"])
+                    elif "FIREBASE_CREDENTIALS" in st.secrets:
+                        raw = st.secrets["FIREBASE_CREDENTIALS"]
+                        cred_dict = json.loads(raw) if isinstance(raw, str) else dict(raw)
+                except Exception:
+                    pass
+
+                # 2. Variable de entorno (fallback)
+                if not cred_dict:
+                    env_cred = os.getenv("FIREBASE_CREDENTIALS")
+                    if env_cred:
+                        cred_dict = json.loads(env_cred)
+
+                # 3. Archivo local (desarrollo)
+                if cred_dict:
+                    cred = credentials.Certificate(cred_dict)
                 else:
-                    cred = credentials.Certificate(cred_path)
+                    cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "./firebase-credentials.json")
+                    if os.path.exists(cred_path):
+                        cred = credentials.Certificate(cred_path)
+                    else:
+                        cred = credentials.ApplicationDefault()
+
                 firebase_admin.initialize_app(cred)
                 self._db = firestore.client()
                 logger.info("Firebase inicializado correctamente.")
+
             except Exception as e:
                 logger.error(f"No se pudo inicializar Firebase: {e}")
         else:
@@ -86,6 +112,46 @@ class FirebaseRepository(TicketRepository):
             logger.error(f"Error obteniendo proyectos: {e}")
             return [{"id": "mock-project-id", "name": "Proyecto Demo (Error)"}]
 
+    def create_project(self, project_name: str) -> str:
+        """Crea un nuevo proyecto en Firebase y devuelve su ID."""
+        if not self._db:
+            logger.warning("Simulando creación de proyecto por falta de DB.")
+            import random
+            return f"fake-proj-{random.randint(1000, 9999)}"
+            
+        try:
+            from datetime import datetime, timezone
+            projects_ref = self._db.collection("projects")
+            
+            # Generar prefijo automático basado en las siglas
+            words = project_name.upper().split()
+            if len(words) >= 2:
+                prefix = f"{words[0][0]}{words[1][0]}"
+            else:
+                prefix = project_name[:2].upper()
+                
+            new_project_data = {
+                "name": project_name,
+                "ticketPrefix": prefix,
+                "createdAt": firestore.SERVER_TIMESTAMP,
+                "visibility": "private",
+                "members": [],
+                "roles": {},
+                "sprints": [],
+                "columns": [
+                    {"id": "backlog", "label": "Backlog", "emoji": "📝", "wip": None},
+                    {"id": "in-progress", "label": "En progreso", "emoji": "⏳", "wip": 5},
+                    {"id": "blocked", "label": "Bloqueado", "emoji": "⛔", "wip": 4},
+                    {"id": "in-review", "label": "En revisión", "emoji": "👀", "wip": 4},
+                    {"id": "done", "label": "Completado", "emoji": "✅", "wip": None}
+                ]
+            }
+            _, doc_ref = projects_ref.add(new_project_data)
+            return doc_ref.id
+        except Exception as e:
+            logger.error(f"Error creando proyecto: {e}")
+            raise
+
     def get_epics(self, project_id: str) -> List[Epic]:
         if not self._db:
             return []
@@ -116,11 +182,21 @@ class FirebaseRepository(TicketRepository):
                 try:
                     data = doc.to_dict()
                     status = str(data.get("status", "")).lower()
-                    if status not in DONE_STATUSES and data.get("type") in STORY_TYPES:
+                    is_archived = data.get("archived", False)
+                    
+                    if status not in DONE_STATUSES and data.get("type") in STORY_TYPES and not is_archived:
                         if not data.get("title"): data["title"] = "Sin título"
                         if not data.get("description"): data["description"] = ""
+                        
+                        # Pragma guarda el ID visual (TC-123) en el campo "id". 
+                        # Lo rescatamos a "code" ANTES de sobreescribirlo con el hash de Firestore.
+                        visual_id = data.get("id") or data.get("code")
                         data["id"] = doc.id
-                        data["code"] = self._display_id(doc.id, data)
+                        if visual_id:
+                            data["code"] = visual_id
+                        else:
+                            data["code"] = self._display_id(doc.id, data)
+                            
                         result.append(UserStory(**data))
                 except Exception as e:
                     logger.warning(f"Error parseando ticket {doc.id}: {e}")
@@ -131,7 +207,7 @@ class FirebaseRepository(TicketRepository):
 
     def save_ticket(self, project_id: str, ticket: Any) -> str:
         now = self._now_iso()
-        if not ticket.createdAt:
+        if not getattr(ticket, "createdAt", None):
             ticket.createdAt = now
         ticket.updatedAt = now
 
@@ -141,8 +217,70 @@ class FirebaseRepository(TicketRepository):
             return f"fake-id-{random.randint(1000, 9999)}"
 
         try:
-            ticket_dict = ticket.model_dump(exclude_none=True, exclude={"id"})
+            ticket_dict = ticket.model_dump(exclude_none=True, exclude={"id", "code"})
+            
+            # --- ADAPTACIONES PARA EL FRONTEND DE PRAGMA ---
+            
+            # 1. Fechas a Timestamp nativo
+            ticket_dict["updatedAt"] = firestore.SERVER_TIMESTAMP
+            if "createdAt" in ticket_dict and isinstance(ticket_dict["createdAt"], str):
+                ticket_dict["createdAt"] = firestore.SERVER_TIMESTAMP
+                
+            # 2. El tablero Kanban de Pragma usa 'backlog', no 'todo'
+            if ticket_dict.get("status") == "todo":
+                ticket_dict["status"] = "backlog"
+                
+            # 3. Pragma usa camelCase para los Story Points y maneja estimatedHours nativamente
+            if "story_points" in ticket_dict:
+                ticket_dict["storyPoints"] = ticket_dict.pop("story_points")
+                
+            # 4. Inyección de campos obligatorios para evitar crashes en React
+            if "order" not in ticket_dict:
+                ticket_dict["order"] = 0
+            if "history" not in ticket_dict:
+                ticket_dict["history"] = []
+            if "isBlocked" not in ticket_dict:
+                ticket_dict["isBlocked"] = False
+            if "archived" not in ticket_dict:
+                ticket_dict["archived"] = False
+                
+            # Si hay parent_id guardado en sesión, lo inyectamos
+            import streamlit as st
+            parent_id = st.session_state.get("selected_epic_id")
+            if parent_id:
+                ticket_dict["parentId"] = parent_id
+
+            # --- ASIGNACIÓN DE ID CON PREFIJO (ej: DA-123) ---
+            try:
+                proj_doc = self._db.collection("projects").document(project_id).get()
+                if proj_doc.exists:
+                    prefix = proj_doc.to_dict().get("ticketPrefix")
+                    if prefix:
+                        # Buscar el mayor ticket con este prefijo para autoincrementar
+                        existing = self._tickets_ref(project_id).where("id", ">=", f"{prefix}-").where("id", "<", f"{prefix}-\uf8ff").get()
+                        max_num = 0
+                        for t in existing:
+                            tid = t.to_dict().get("id", "")
+                            if tid.startswith(f"{prefix}-"):
+                                try:
+                                    num = int(tid.split("-")[1])
+                                    if num > max_num:
+                                        max_num = num
+                                except ValueError:
+                                    pass
+                        # Asignamos el nuevo ID formateado
+                        ticket_dict["id"] = f"{prefix}-{str(max_num + 1).zfill(3)}"
+            except Exception as e:
+                logger.warning(f"No se pudo generar ID con prefijo: {e}")
+
+            # Guardamos el documento
             _, doc_ref = self._tickets_ref(project_id).add(ticket_dict)
+            
+            # 5. Pragma a veces requiere que el ID del documento exista dentro de las propiedades
+            # Si no conseguimos generar un ID con prefijo, usamos el de Firestore
+            if "id" not in ticket_dict:
+                doc_ref.update({"id": doc_ref.id})
+            
             return doc_ref.id
         except Exception as e:
             logger.error(f"Error guardando ticket: {e}")
