@@ -29,7 +29,9 @@ SYSTEM_PROMPT = (
     "  \"acceptanceCriteria\": [\n"
     "    \"string — criterio orientado a validación de datos (ej: El total de ventas del informe cuadra con el sistema origen con desviación < 0.01%)\"\n"
     "  ],\n"
-    "  \"story_points\": int\n"
+    "  \"story_points\": int,\n"
+    "  \"type\": \"string — elige estrictamente uno de: 'tarea', 'desarrollo', 'mejora', 'bug' (normalmente 'desarrollo' para BI)\",\n"
+    "  \"estimatedHours\": int\n"
     "}\n\n"
     "Reglas importantes:\n"
     "- Los criterios de aceptación deben ser verificables y orientados a la calidad del dato.\n"
@@ -59,7 +61,8 @@ def parse_response(content: str, epic: Epic) -> List[BIStory]:
     data = json.loads(content)
     stories = []
     for item in data.get("stories", []):
-        item["type"] = "desarrollo"
+        if "type" not in item:
+            item["type"] = "desarrollo"
         item["tags"] = [f"epic:{epic.title}", "powerbi"]
         item["priority"] = epic.priority or "medium"
         try:

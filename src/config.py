@@ -4,7 +4,7 @@ Todos los valores configurables deben vivir aquí, nunca hardcodeados en el cód
 """
 
 # ─── LLM ──────────────────────────────────────────────────────────────────────
-LLM_MODEL = "llama-3.3-70b-versatile"
+LLM_MODEL = "qwen/qwen3.8-27b"
 LLM_TEMPERATURE_CREATIVE = 0.3   # Para generación creativa (troceador)
 LLM_TEMPERATURE_ANALYTICAL = 0.2 # Para análisis estructurado (priorizadores)
 LLM_MAX_TOKENS_EPIC = 2048

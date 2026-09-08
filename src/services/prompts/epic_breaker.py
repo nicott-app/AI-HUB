@@ -17,7 +17,9 @@ SYSTEM_PROMPT = (
     "  \"title\": \"string\",\n"
     "  \"description\": \"string\",\n"
     "  \"acceptanceCriteria\": [\"string\", \"string\"],\n"
-    "  \"story_points\": int\n"
+    "  \"story_points\": int,\n"
+    "  \"type\": \"string — elige estrictamente uno de: 'tarea', 'desarrollo', 'mejora', 'bug'\",\n"
+    "  \"estimatedHours\": int\n"
     "}\n"
 )
 
@@ -41,7 +43,8 @@ def parse_response(content: str, epic: Epic) -> List[UserStory]:
     data = json.loads(content)
     stories = []
     for item in data.get("stories", []):
-        item["type"] = "tarea"
+        if "type" not in item:
+            item["type"] = "tarea"
         item["tags"] = [f"epic:{epic.title}"]
         item["priority"] = epic.priority or "medium"
         try:

@@ -4,6 +4,9 @@ from src.data.cache import get_repository, get_llm_service, cached_projects, cac
 
 
 def render_prioritizer():
+    from src.ui.pipeline_banner import render_pipeline_banner
+    render_pipeline_banner("prioritizer")
+
     st.header("Priorizador Ágil Multipropósito 📊")
     st.write("Evalúa tus historias usando frameworks de la industria apoyado por Inteligencia Artificial.")
 
@@ -17,39 +20,66 @@ def render_prioritizer():
         st.warning("No hay proyectos disponibles.")
         return
 
+    pipeline = st.session_state.get("pipeline", {})
+    is_pipeline = pipeline.get("active", False)
+
     col1, col2 = st.columns([1, 1])
     with col1:
+        idx_proj = 0
+        if is_pipeline:
+            pipeline_proj = pipeline.get("project_id")
+            if pipeline_proj in project_options:
+                idx_proj = list(project_options.keys()).index(pipeline_proj)
+
         selected_project_id = st.selectbox(
             "1. Entorno (Proyecto)",
             options=list(project_options.keys()),
-            format_func=lambda x: project_options[x]
+            format_func=lambda x: project_options[x],
+            index=idx_proj
         )
     with col2:
         frameworks = ["RICE", "WSJF", "MoSCoW", "Kano", "Valor vs Complejidad"]
         selected_framework = st.selectbox("2. Framework de Priorización", options=frameworks)
 
-    stories = cached_stories(selected_project_id)
+    if is_pipeline:
+        stories = pipeline.get("all_stories", [])
+        st.info("💡 **Pipeline activo:** Priorizando las historias recién generadas.")
+    else:
+        stories = cached_stories(selected_project_id)
 
     if not stories:
-        st.info("No se encontraron tickets compatibles sin finalizar en este proyecto.")
+        st.info("No hay historias para evaluar.")
         return
 
     st.markdown("**3. Tickets a evaluar:**")
     st.caption(f"{len(stories)} tickets disponibles. Marca los que quieras incluir en el análisis.")
+    
+    search_query = st.text_input("🔍 Buscar tickets por título o ID:", "").strip().lower()
 
     def sort_key(s):
         parts = (s.id or "").split("-")
         return (0, parts[0], int(parts[-1])) if len(parts) == 2 and parts[-1].isdigit() else (1, s.id or "", 0)
 
     sorted_stories = sorted(stories, key=sort_key)
+    
+    if search_query:
+        sorted_stories = [
+            s for s in sorted_stories 
+            if search_query in s.title.lower() or search_query in (s.code or s.id or "").lower()
+        ]
+
+    if not sorted_stories:
+        st.info("No hay tickets que coincidan con la búsqueda.")
+        
     cols = st.columns(3)
     selected_ids = []
 
     for idx, story in enumerate(sorted_stories):
         display_id = story.code or story.id or "?"
         label = f"`{display_id}` — {story.title}"
-        if cols[idx % 3].checkbox(label, value=True, key=f"chk_{story.id}"):
-            selected_ids.append(story.id)
+        if cols[idx % 3].checkbox(label, value=True, key=f"chk_{story.id or idx}"):
+            # En pipeline las historias aún no tienen id, usamos su índice como fallback
+            selected_ids.append(story.id or idx)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -58,7 +88,9 @@ def render_prioritizer():
             st.warning("Selecciona al menos un ticket.")
             return
 
-        selected = [s for s in stories if s.id in selected_ids]
+        # Filtrar por id (flujo normal) o por índice (pipeline)
+        selected = [s for idx, s in enumerate(stories) if (s.id or idx) in selected_ids]
+        
         with st.spinner(f"Calculando {selected_framework} con Llama 3..."):
             try:
                 results = llm.prioritize_stories(selected, selected_framework)
@@ -78,7 +110,7 @@ def render_prioritizer():
 
     df_data = []
     for p in results:
-        row = {"ID": p.code or p.id, "Título": p.title}
+        row = {"ID": p.code or p.id or "NUEVO", "Título": p.title}
         if active_fw == "RICE" and p.rice_score:
             row.update({"Reach": p.rice_score.reach, "Impact": p.rice_score.impact,
                         "Confidence": p.rice_score.confidence, "Effort": p.rice_score.effort,
@@ -103,21 +135,62 @@ def render_prioritizer():
 
     st.dataframe(pd.DataFrame(df_data), use_container_width=True, hide_index=True)
 
-    if st.button("💾 Guardar Scores en Pragma (Firebase)", type="primary"):
-        field_map = {
-            "RICE": "rice_score", "WSJF": "wsjf_score", "MoSCoW": "moscow_score",
-            "Kano": "kano_score", "Valor vs Complejidad": "value_complexity_score"
-        }
-        with st.spinner("Actualizando base de datos..."):
-            try:
-                db_field = field_map[active_fw]
-                for p in results:
-                    score_obj = getattr(p, db_field)
-                    if score_obj:
-                        repo.update_ticket_score(selected_project_id, p.id, db_field, score_obj.model_dump())
+    if is_pipeline:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("🚀 Crear Épicas e Historias en Pragma", type="primary", use_container_width=True):
+            # Obtener datos del pipeline
+            epics = pipeline.get("epics", [])
+            project_id = pipeline.get("project_id")
+            
+            # Las historias en results son copias, necesitamos actualizar las originales del pipeline
+            field_map = {
+                "RICE": "rice_score", "WSJF": "wsjf_score", "MoSCoW": "moscow_score",
+                "Kano": "kano_score", "Valor vs Complejidad": "value_complexity_score"
+            }
+            db_field = field_map[active_fw]
+            
+            # Traspasar los scores calculados al array de historias original
+            for res_story in results:
+                for orig_story in stories:
+                    if orig_story.title == res_story.title:
+                        setattr(orig_story, db_field, getattr(res_story, db_field))
+                        break
 
-                cached_stories.clear()  # Invalidar caché para reflejar los scores guardados
-                st.success("¡Scores guardados correctamente!")
-                del st.session_state["prioritization_results"]
+            # Reutilizar lógica de despliegue desde epic_breaker_view
+            from src.ui.epic_breaker_view import _deploy_to_pragma
+            st.session_state["pipeline"]["step"] = "done"
+            
+            # Guardamos las épicas primero y luego todas las historias
+            progress = st.progress(0, text="Guardando épicas padre...")
+            try:
+                for idx, epic in enumerate(epics):
+                    progress.progress(int(30 * (idx+1)/len(epics)), text=f"Guardando épica: {epic.title}")
+                    repo.save_ticket(project_id, epic)
+                    # Enriquecer historias hijas con la etiqueta de su épica
+                    # (esto ya se hizo parcialmente, pero lo aseguramos)
+                    
+                progress.empty()
+                _deploy_to_pragma(repo, stories, project_id)
             except Exception as e:
-                st.error(f"Error actualizando Firebase: {e}")
+                st.error(f"❌ Error durante el despliegue: {e}")
+
+    else:
+        if st.button("💾 Guardar Scores en Pragma (Firebase)", type="primary"):
+            field_map = {
+                "RICE": "rice_score", "WSJF": "wsjf_score", "MoSCoW": "moscow_score",
+                "Kano": "kano_score", "Valor vs Complejidad": "value_complexity_score"
+            }
+            with st.spinner("Actualizando base de datos..."):
+                try:
+                    db_field = field_map[active_fw]
+                    for p in results:
+                        score_obj = getattr(p, db_field)
+                        if score_obj:
+                            repo.update_ticket_score(selected_project_id, p.id, db_field, score_obj.model_dump())
+
+                    cached_stories.clear()  # Invalidar caché para reflejar los scores guardados
+                    st.success("¡Scores guardados correctamente!")
+                    del st.session_state["prioritization_results"]
+                except Exception as e:
+                    st.error(f"Error actualizando Firebase: {e}")
+

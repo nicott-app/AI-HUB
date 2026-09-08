@@ -14,7 +14,10 @@ from groq import Groq
 from src.config import LLM_MODEL
 from src.models.agile import Epic, UserStory, PrioritizedStory
 from src.models.bi import BIStory
-from src.services.prompts import epic_breaker, epic_breaker_bi, prioritizer
+from src.models.ai_usecase import AIUseCase
+from src.models.ai_canvas import AIProjectCanvas
+from src.models.okr import OKRSet
+from src.services.prompts import epic_breaker, epic_breaker_bi, prioritizer, ai_usecase_generator, ai_canvas_generator, okr_generator
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +25,22 @@ logger = logging.getLogger(__name__)
 class LLMService:
     def __init__(self):
         import os
+        
+        # 1. Intentar variable de entorno local (.env)
         self.api_key = os.getenv("GROQ_API_KEY")
+        
+        # 2. Intentar Streamlit Secrets si está en la nube
         if not self.api_key:
-            logger.warning("GROQ_API_KEY no encontrada en las variables de entorno.")
+            try:
+                import streamlit as st
+                self.api_key = st.secrets.get("GROQ_API_KEY")
+            except Exception:
+                pass
+                
+        if not self.api_key:
+            logger.warning("GROQ_API_KEY no encontrada. Configúrala en Streamlit Secrets.")
+            self.api_key = "MISSING_API_KEY" # Para evitar TypeError en Groq()
+            
         self.client = Groq(api_key=self.api_key)
         self.model = LLM_MODEL
 
@@ -88,4 +104,68 @@ class LLMService:
             return prioritizer.parse_and_sort(content, stories, framework)
         except Exception as e:
             logger.error(f"Error en prioritize_stories ({framework}): {e}")
+            raise
+
+    def generate_ai_use_cases(
+        self,
+        sector: str,
+        company_size: str,
+        pain_points: str,
+        current_tech: str,
+        goals: str,
+    ) -> List[AIUseCase]:
+        """Genera casos de uso de IA priorizados para una organización."""
+        try:
+            content = self._call(
+                system_prompt=ai_usecase_generator.SYSTEM_PROMPT,
+                user_content=ai_usecase_generator.build_user_prompt(
+                    sector, company_size, pain_points, current_tech, goals
+                ),
+                **ai_usecase_generator.CALL_PARAMS,
+            )
+            return ai_usecase_generator.parse_response(content)
+        except Exception as e:
+            logger.error(f"Error en generate_ai_use_cases: {e}")
+            raise
+
+    def generate_ai_canvas(
+        self,
+        project_name: str,
+        objective: str,
+        sector: str,
+        context: str,
+        constraints: str,
+    ) -> AIProjectCanvas:
+        """Genera un Canvas de Proyecto IA completo."""
+        try:
+            content = self._call(
+                system_prompt=ai_canvas_generator.SYSTEM_PROMPT,
+                user_content=ai_canvas_generator.build_user_prompt(
+                    project_name, objective, sector, context, constraints
+                ),
+                **ai_canvas_generator.CALL_PARAMS,
+            )
+            return ai_canvas_generator.parse_response(content)
+        except Exception as e:
+            logger.error(f"Error en generate_ai_canvas: {e}")
+            raise
+
+    def generate_okrs(
+        self,
+        project_context: str,
+        timeframe: str,
+        strategic_focus: str,
+    ) -> OKRSet:
+        """Genera un set de OKRs basado en el contexto y foco estratégico."""
+        try:
+            content = self._call(
+                system_prompt=okr_generator.SYSTEM_PROMPT,
+                user_content=okr_generator.build_user_prompt(
+                    project_context, timeframe, strategic_focus
+                ),
+                **okr_generator.CALL_PARAMS,
+            )
+            return okr_generator.parse_response(content)
+        except Exception as e:
+            logger.error(f"Error en generate_okrs: {e}")
             raise

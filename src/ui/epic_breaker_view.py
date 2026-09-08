@@ -152,10 +152,14 @@ def _render_bi_card(story):
 # ─── Vista principal ───────────────────────────────────────────────────────────
 
 def render_epic_breaker():
+    from src.ui.pipeline_banner import render_pipeline_banner
     inject_custom_css()
 
     repo = get_repository()
     llm = get_llm_service()
+
+    # 1. Mostrar banner de pipeline si está activo
+    render_pipeline_banner("epic_breaker")
 
     # ── PANTALLA 1: FORMULARIO DE ENTRADA ──────────────────────────────────────
     if "generated_stories" not in st.session_state:
@@ -188,35 +192,59 @@ def render_epic_breaker():
 
             selected_project_id = None
             if project_options:
+                # Si hay pipeline activo, pre-seleccionar el proyecto del pipeline
+                pipeline = st.session_state.get("pipeline", {})
+                pipeline_proj = pipeline.get("project_id")
+                idx_proj = 0
+                if pipeline_proj in project_options:
+                    idx_proj = list(project_options.keys()).index(pipeline_proj)
+
                 selected_project_id = st.selectbox(
                     "📁 Entorno (Proyecto)",
                     options=list(project_options.keys()),
-                    format_func=lambda x: project_options[x]
+                    format_func=lambda x: project_options[x],
+                    index=idx_proj
                 )
 
             epic_title, epic_description, epic_priority, selected_epic_id = "", "", "medium", None
 
-            if selected_project_id:
-                epics = cached_epics(selected_project_id)
-                epic_options = {e.id: f"[{e.type.upper()}] {e.title}" for e in epics} if epics else {}
+            pipeline = st.session_state.get("pipeline", {})
+            is_pipeline_active = pipeline.get("active", False)
 
-                if epic_options:
-                    selected_epic_id = st.selectbox(
-                        "🔗 Importar Épica (Base de Datos)",
-                        options=[""] + list(epic_options.keys()),
-                        format_func=lambda x: epic_options[x] if x else "--- Redactar Manualmente ---"
-                    )
+            if is_pipeline_active:
+                # Pre-rellenar con la épica actual del pipeline
+                idx = pipeline.get("pending_epic_index", 0)
+                epics = pipeline.get("epics", [])
+                if idx < len(epics):
+                    curr_epic = epics[idx]
+                    epic_title = curr_epic.title
+                    epic_description = curr_epic.description
+                    epic_priority = curr_epic.priority
+                st.info("💡 **Pipeline activo:** Datos pre-rellenados desde el Generador de Casos de Uso IA.")
+            else:
+                # Comportamiento normal: importar épica
+                if selected_project_id:
+                    epics = cached_epics(selected_project_id)
+                    epic_options = {e.id: f"[{e.type.upper()}] {e.title}" for e in epics} if epics else {}
 
-                if selected_epic_id:
-                    epic = next((e for e in epics if e.id == selected_epic_id), None)
-                    if epic:
-                        epic_title = epic.title
-                        epic_description = epic.description
-                        epic_priority = epic.priority
+                    if epic_options:
+                        selected_epic_id = st.selectbox(
+                            "🔗 Importar Épica (Base de Datos)",
+                            options=[""] + list(epic_options.keys()),
+                            format_func=lambda x: epic_options[x] if x else "--- Redactar Manualmente ---"
+                        )
+
+                    if selected_epic_id:
+                        epic = next((e for e in epics if e.id == selected_epic_id), None)
+                        if epic:
+                            epic_title = epic.title
+                            epic_description = epic.description
+                            epic_priority = epic.priority
 
             st.markdown("<hr style='margin:1rem 0; opacity:0.2;'>", unsafe_allow_html=True)
             epic_title = st.text_input("📝 Título de la Épica", value=epic_title)
             epic_description = st.text_area("🧠 Contexto / Notas para la IA", value=epic_description, height=200)
+
 
             button_label = "✨ Trocear con IA (modo PowerBI)" if bi_mode else "✨ Trocear con IA"
             st.markdown("<br>", unsafe_allow_html=True)
@@ -293,32 +321,101 @@ def render_epic_breaker():
                     st.metric("Orígenes de datos", total_sources)
 
             st.markdown("<br><br>", unsafe_allow_html=True)
-            st.markdown("#### 🚀 Despliegue")
+            st.markdown("<br><br>", unsafe_allow_html=True)
+            st.markdown("#### 🚀 Acciones")
 
-            if st.button("Enviar a Pragma", type="primary", use_container_width=True):
-                project_id = st.session_state.get("target_project_id")
-                epic = st.session_state.get("current_epic")
-                parent_id = st.session_state.get("selected_epic_id")
+            pipeline = st.session_state.get("pipeline", {})
+            is_pipeline = pipeline.get("active", False)
 
-                if not project_id:
-                    st.error("No hay proyecto destino configurado.")
+            if is_pipeline:
+                epics = pipeline.get("epics", [])
+                idx = pipeline.get("pending_epic_index", 0)
+                is_last_epic = idx >= len(epics) - 1
+
+                if not is_last_epic:
+                    if st.button("Siguiente Épica →", type="primary", use_container_width=True):
+                        # Acumular historias y avanzar
+                        pipeline["all_stories"].extend(stories)
+                        pipeline["pending_epic_index"] = idx + 1
+                        del st.session_state["generated_stories"]
+                        st.rerun()
                 else:
-                    with st.spinner("Sincronizando con la Base de Datos..."):
-                        try:
-                            if not parent_id:
-                                repo.save_ticket(project_id, epic)
+                    st.success("🎉 Todas las épicas han sido procesadas.")
+                    if st.button("📊 Priorizar historias acumuladas", use_container_width=True):
+                        # Acumular las últimas historias
+                        pipeline["all_stories"].extend(stories)
+                        pipeline["step"] = "prioritizer"
+                        del st.session_state["generated_stories"]
+                        st.session_state.current_page = "📊 Priorizador Multipropósito"
+                        st.rerun()
 
-                            for story in stories:
-                                if epic.title:
-                                    story.tags = story.tags or []
-                                    story.tags.append(f"epic:{epic.title}")
+                    if st.button("🚀 Enviar todo directamente a Pragma", type="primary", use_container_width=True):
+                        # Acumular las últimas historias antes de enviar
+                        pipeline["all_stories"].extend(stories)
+                        _deploy_to_pragma(repo, pipeline["all_stories"], pipeline.get("project_id"))
 
-                            repo.save_tickets_batch(project_id, stories)
-                            cached_epics.clear()
-                            cached_stories.clear()
+            else:
+                # Comportamiento normal independiente
+                if st.button("Enviar a Pragma", type="primary", use_container_width=True):
+                    project_id = st.session_state.get("target_project_id")
+                    epic = st.session_state.get("current_epic")
+                    _deploy_to_pragma(repo, stories, project_id, epic)
 
-                            st.success("¡Sincronización exitosa!")
-                            del st.session_state["generated_stories"]
-                            st.rerun()
-                        except Exception as e:
-                            st.error(f"Fallo en la conexión: {e}")
+        # Botón de regreso tras éxito
+        if st.session_state.get("send_success"):
+            if st.button("← Volver al inicio", type="secondary"):
+                del st.session_state["send_success"]
+                if is_pipeline:
+                    from src.ui.pipeline_banner import cancel_pipeline
+                    cancel_pipeline()
+                st.rerun()
+
+
+def _deploy_to_pragma(repo, stories, project_id, epic=None):
+    """Lógica extraída de envío a Pragma."""
+    if not project_id:
+        st.error("❌ No hay proyecto destino configurado.")
+        return
+
+    progress = st.progress(0, text="Preparando envío...")
+    try:
+        # Guardar épica si aplica (flujo independiente)
+        if epic and not st.session_state.get("selected_epic_id"):
+            progress.progress(10, text="Guardando épica en Firebase...")
+            repo.save_ticket(project_id, epic)
+            
+            # Enriquecer historias
+            for story in stories:
+                if epic.title:
+                    story.tags = story.tags or []
+                    if f"epic:{epic.title}" not in story.tags:
+                        story.tags.append(f"epic:{epic.title}")
+
+        # Enviar historias
+        total = len(stories)
+        for i, story in enumerate(stories):
+            progress.progress(
+                30 + int(60 * (i + 1) / total),
+                text=f"Enviando historia {i+1}/{total}: {story.title[:40]}..."
+            )
+            repo.save_ticket(project_id, story)
+
+        # Limpiar caché
+        progress.progress(95, text="Limpiando caché...")
+        from src.data.cache import cached_epics, cached_stories
+        cached_epics.clear()
+        cached_stories.clear()
+
+        progress.progress(100, text="¡Listo!")
+        st.success(
+            f"✅ **¡{total} historia{'s' if total > 1 else ''} enviada{'s' if total > 1 else ''} a Pragma!** "
+            f"Ya puedes verlas en tu tablero."
+        )
+        st.balloons()
+        st.session_state["send_success"] = True
+        if "generated_stories" in st.session_state:
+            del st.session_state["generated_stories"]
+
+    except Exception as e:
+        progress.empty()
+        st.error(f"❌ **Fallo en el envío:** {str(e)}")

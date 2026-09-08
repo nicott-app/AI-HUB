@@ -16,6 +16,11 @@ class TicketRepository(ABC):
         ...
 
     @abstractmethod
+    def create_project(self, project_name: str) -> str:
+        """Crea un proyecto y devuelve su ID."""
+        ...
+
+    @abstractmethod
     def get_epics(self, project_id: str) -> list:
         """Devuelve tickets de tipo épica del proyecto indicado."""
         ...

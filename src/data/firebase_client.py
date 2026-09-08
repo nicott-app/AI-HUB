@@ -167,3 +167,23 @@ class FirebaseClient:
         except Exception as e:
             logger.error(f"Error obteniendo proyectos: {e}")
             return [{"id": "mock-project-id", "name": "Proyecto Demo (Error)"}]
+
+    def create_project(self, project_name: str) -> str:
+        """Crea un nuevo proyecto en Firebase y devuelve su ID."""
+        if not self._db:
+            logger.warning("Simulando creación de proyecto por falta de DB.")
+            import random
+            return f"fake-proj-{random.randint(1000, 9999)}"
+            
+        try:
+            from datetime import datetime, timezone
+            projects_ref = self._db.collection("projects")
+            new_project_data = {
+                "name": project_name,
+                "createdAt": datetime.now(timezone.utc).isoformat()
+            }
+            _, doc_ref = projects_ref.add(new_project_data)
+            return doc_ref.id
+        except Exception as e:
+            logger.error(f"Error creando proyecto: {e}")
+            raise
