@@ -44,17 +44,82 @@ class LLMService:
         self.client = Groq(api_key=self.api_key)
         self.model = LLM_MODEL
 
+    # ── Control de rate limiting ─────────────────────────────────────────────────
+    _last_call_time: float = 0.0   # Timestamp de la última llamada al LLM (clase compartida)
+    _MIN_INTERVAL_SECS: float = 8.0  # Intervalo mínimo entre llamadas consecutivas (Opción 3)
+    _MAX_RETRIES: int = 3            # Intentos máximos ante un 429 (Opción 1)
+
     def _call(self, system_prompt: str, user_content: str, **params) -> str:
-        """Realiza la llamada HTTP a Groq y devuelve el contenido crudo."""
-        response = self.client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_content},
-            ],
-            model=self.model,
-            **params,
-        )
-        return response.choices[0].message.content
+        """Realiza la llamada HTTP a Groq con:
+        - Cooldown mínimo entre llamadas para no saturar el RPM (Opción 3).
+        - Retry automático con espera amigable ante errores 429 (Opción 1).
+        """
+        import time
+        import streamlit as st
+
+        # ── Opción 3: Cooldown ────────────────────────────────────────────────────
+        elapsed = time.time() - LLMService._last_call_time
+        if elapsed < LLMService._MIN_INTERVAL_SECS:
+            wait = LLMService._MIN_INTERVAL_SECS - elapsed
+            placeholder = st.empty()
+            for remaining in range(int(wait), 0, -1):
+                placeholder.info(
+                    f"⏳ Preparando siguiente llamada a la IA... ({remaining}s). "
+                    f"Esto evita saturar el límite de peticiones por minuto."
+                )
+                time.sleep(1)
+            placeholder.empty()
+
+        # ── Opción 1: Retry con back-off ante 429 ────────────────────────────────
+        for attempt in range(LLMService._MAX_RETRIES):
+            try:
+                LLMService._last_call_time = time.time()
+                response = self.client.chat.completions.create(
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user",   "content": user_content},
+                    ],
+                    model=self.model,
+                    **params,
+                )
+                return response.choices[0].message.content
+
+            except Exception as e:
+                error_str = str(e)
+
+                # Detectar error 429 (rate limit)
+                if "429" in error_str or "rate_limit_exceeded" in error_str:
+                    # Intentar extraer el tiempo sugerido por Groq en el mensaje de error
+                    wait_secs = 60  # Valor por defecto seguro
+                    try:
+                        import re
+                        match = re.search(r"try again in ([\d.]+)s", error_str)
+                        if match:
+                            wait_secs = int(float(match.group(1))) + 2
+                    except Exception:
+                        pass
+
+                    if attempt < LLMService._MAX_RETRIES - 1:
+                        placeholder = st.empty()
+                        for remaining in range(wait_secs, 0, -1):
+                            placeholder.warning(
+                                f"⚠️ Límite de peticiones alcanzado. "
+                                f"Reintentando automáticamente en **{remaining}s**... "
+                                f"(Intento {attempt + 1}/{LLMService._MAX_RETRIES})"
+                            )
+                            time.sleep(1)
+                        placeholder.empty()
+                        LLMService._last_call_time = time.time()
+                        continue  # reintentar
+                    else:
+                        # Agotados los reintentos, lanzar error claro
+                        raise RuntimeError(
+                            f"⛔ Se ha superado el límite de la API tras {LLMService._MAX_RETRIES} intentos. "
+                            f"Espera un minuto y vuelve a intentarlo."
+                        ) from e
+                else:
+                    raise  # Error diferente → propagarlo directamente
+
 
     def break_epic_into_stories(self, epic: Epic) -> List[UserStory]:
         """Desglosa una épica en historias de usuario usando el LLM."""
