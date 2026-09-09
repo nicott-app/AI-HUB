@@ -58,3 +58,10 @@ def cached_stories(project_id: str):
 
     return st.session_state[cache_key]
 
+
+def clear_project_cache(project_id: str):
+    """Limpia manualmente las épicas y stories del caché (session_state) para un proyecto."""
+    for prefix in ["_cache_epics", "_cache_stories"]:
+        st.session_state.pop(f"{prefix}_{project_id}", None)
+        st.session_state.pop(f"{prefix}_ts_{project_id}", None)
+
