@@ -1,8 +1,8 @@
-# 🚀 Pragma AI Hub
+# 🚀 Sprinto AI Hub
 
-**Pragma AI Hub** es una plataforma avanzada impulsada por Inteligencia Artificial diseñada para acelerar y optimizar el ciclo de vida de la gestión de productos y proyectos tecnológicos. Actúa como el cerebro analítico y generativo detrás de **Pragma**, integrándose perfectamente con su ecosistema de tableros Kanban.
+**Sprinto AI Hub** es una plataforma avanzada impulsada por Inteligencia Artificial diseñada para acelerar y optimizar el ciclo de vida de la gestión de productos y proyectos tecnológicos. Actúa como el cerebro analítico y generativo detrás de **Sprinto**, integrándose perfectamente con su ecosistema de tableros Kanban.
 
-A través de asistentes de IA especializados, Pragma AI Hub permite a Product Managers, Agile Coaches y equipos técnicos pasar de la concepción de una idea a un *backlog* completamente refinado y priorizado en cuestión de minutos.
+A través de asistentes de IA especializados, Sprinto AI Hub permite a Product Managers, Agile Coaches y equipos técnicos pasar de la concepción de una idea a un *backlog* completamente refinado y priorizado en cuestión de minutos.
 
 ---
 
@@ -34,7 +34,7 @@ Evalúa un *backlog* de historias de usuario frente a marcos de trabajo estánda
 ### 6. 🔄 Pipeline Ágil End-to-End
 Permite encadenar herramientas sin perder el contexto. El usuario puede:
 1. Generar casos de uso.
-2. Seleccionar uno y crear un proyecto nuevo en Pragma.
+2. Seleccionar uno y crear un proyecto nuevo en Sprinto.
 3. Desglosar sus Épicas en Historias.
 4. Priorizar todas las historias automáticamente.
 5. Inyectarlas en el tablero Kanban de Firebase con un solo clic.
@@ -44,7 +44,7 @@ Permite encadenar herramientas sin perder el contexto. El usuario puede:
 ## 🛠️ Arquitectura y Tecnologías
 
 * **Frontend:** [Streamlit](https://streamlit.io/) — Interfaces de usuario reactivas, limpias y basadas en Python.
-* **Base de Datos:** Firebase Firestore — Sincronización en tiempo real con el frontend React de Pragma.
+* **Base de Datos:** Firebase Firestore — Sincronización en tiempo real con el frontend React de Sprinto.
 * **Motor LLM:** Groq API (Llama 3 / Mixtral) — Inferencias de IA ultrarrápidas. Integración flexible mediante la capa `LLMService`.
 * **Modelado de Datos:** Pydantic — Validación estricta de esquemas estructurados para garantizar que la IA devuelva formatos predecibles.
 
@@ -94,10 +94,10 @@ Permite encadenar herramientas sin perder el contexto. El usuario puede:
 ---
 
 ## 🧠 Protección Inteligente de Rate Limits
-El `LLMService` de Pragma AI Hub implementa un mecanismo inteligente para respetar las cuotas de las APIs gratuitas (como Groq):
+El `LLMService` de Sprinto AI Hub implementa un mecanismo inteligente para respetar las cuotas de las APIs gratuitas (como Groq):
 - **Cooldown entre peticiones:** Pausas automáticas inyectadas para no superar los límites de RPM.
 - **Retry con Back-off amigable:** Intercepción de errores `429 Too Many Requests`, lectura del header de la API y reintento automático transparente para el usuario mediante temporizadores en la interfaz.
 
 ---
 
-*Desarrollado para potenciar el ecosistema de gestión ágil Pragma.*
+*Desarrollado para potenciar el ecosistema de gestión ágil Sprinto.*

@@ -188,7 +188,7 @@ class FirebaseRepository(TicketRepository):
                         if not data.get("title"): data["title"] = "Sin título"
                         if not data.get("description"): data["description"] = ""
                         
-                        # Pragma guarda el ID visual (TC-123) en el campo "id". 
+                        # Sprinto guarda el ID visual (TC-123) en el campo "id". 
                         # Lo rescatamos a "code" ANTES de sobreescribirlo con el hash de Firestore.
                         visual_id = data.get("id") or data.get("code")
                         data["id"] = doc.id
@@ -219,18 +219,18 @@ class FirebaseRepository(TicketRepository):
         try:
             ticket_dict = ticket.model_dump(exclude_none=True, exclude={"id", "code"})
             
-            # --- ADAPTACIONES PARA EL FRONTEND DE PRAGMA ---
+            # --- ADAPTACIONES PARA EL FRONTEND DE SPRINTO ---
             
             # 1. Fechas a Timestamp nativo
             ticket_dict["updatedAt"] = firestore.SERVER_TIMESTAMP
             if "createdAt" in ticket_dict and isinstance(ticket_dict["createdAt"], str):
                 ticket_dict["createdAt"] = firestore.SERVER_TIMESTAMP
                 
-            # 2. El tablero Kanban de Pragma usa 'backlog', no 'todo'
+            # 2. El tablero Kanban de Sprinto usa 'backlog', no 'todo'
             if ticket_dict.get("status") == "todo":
                 ticket_dict["status"] = "backlog"
                 
-            # 3. Pragma usa camelCase para los Story Points y maneja estimatedHours nativamente
+            # 3. Sprinto usa camelCase para los Story Points y maneja estimatedHours nativamente
             if "story_points" in ticket_dict:
                 ticket_dict["storyPoints"] = ticket_dict.pop("story_points")
                 
@@ -276,7 +276,7 @@ class FirebaseRepository(TicketRepository):
             # Guardamos el documento
             _, doc_ref = self._tickets_ref(project_id).add(ticket_dict)
             
-            # 5. Pragma a veces requiere que el ID del documento exista dentro de las propiedades
+            # 5. Sprinto a veces requiere que el ID del documento exista dentro de las propiedades
             # Si no conseguimos generar un ID con prefijo, usamos el de Firestore
             if "id" not in ticket_dict:
                 doc_ref.update({"id": doc_ref.id})

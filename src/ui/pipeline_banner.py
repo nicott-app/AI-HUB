@@ -25,7 +25,7 @@ def render_pipeline_banner(current_step: str):
         ("🧠", "Casos de Uso", "done"),
         ("🪓", "Troceador", "epic_breaker"),
         ("📊", "Priorizador", "prioritizer"),
-        ("🚀", "Pragma", "done"),
+        ("🚀", "Sprinto", "done"),
     ]
 
     steps_html = ""

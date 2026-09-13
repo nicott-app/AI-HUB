@@ -137,7 +137,7 @@ def render_prioritizer():
 
     if is_pipeline:
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🚀 Crear Épicas e Historias en Pragma", type="primary", use_container_width=True):
+        if st.button("🚀 Crear Épicas e Historias en Sprinto", type="primary", use_container_width=True):
             # Obtener datos del pipeline
             epics = pipeline.get("epics", [])
             project_id = pipeline.get("project_id")
@@ -157,7 +157,7 @@ def render_prioritizer():
                         break
 
             # Reutilizar lógica de despliegue desde epic_breaker_view
-            from src.ui.epic_breaker_view import _deploy_to_pragma
+            from src.ui.epic_breaker_view import _deploy_to_sprinto
             st.session_state["pipeline"]["step"] = "done"
             
             # Guardamos las épicas primero y luego todas las historias
@@ -170,12 +170,12 @@ def render_prioritizer():
                     # (esto ya se hizo parcialmente, pero lo aseguramos)
                     
                 progress.empty()
-                _deploy_to_pragma(repo, stories, project_id)
+                _deploy_to_sprinto(repo, stories, project_id)
             except Exception as e:
                 st.error(f"❌ Error durante el despliegue: {e}")
 
     else:
-        if st.button("💾 Guardar Scores en Pragma (Firebase)", type="primary"):
+        if st.button("💾 Guardar Scores en Sprinto (Firebase)", type="primary"):
             field_map = {
                 "RICE": "rice_score", "WSJF": "wsjf_score", "MoSCoW": "moscow_score",
                 "Kano": "kano_score", "Valor vs Complejidad": "value_complexity_score"

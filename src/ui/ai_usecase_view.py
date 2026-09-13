@@ -302,7 +302,7 @@ def render_ai_usecase_generator():
                     
                     if selected_project_id == NEW_PROJ_KEY:
                         # Crear el proyecto al vuelo
-                        with st.spinner("Creando proyecto en Pragma..."):
+                        with st.spinner("Creando proyecto en Sprinto..."):
                             final_project_id = repo.create_project(new_project_name.strip())
                             # Forzar recarga de caché de proyectos
                             st.cache_data.clear()

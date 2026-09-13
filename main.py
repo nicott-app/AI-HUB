@@ -1,5 +1,5 @@
 """
-Punto de entrada principal para la aplicación Streamlit 'Pragma AI Hub'.
+Punto de entrada principal para la aplicación Streamlit 'Sprinto AI Hub'.
 """
 import os
 from dotenv import load_dotenv
@@ -235,7 +235,7 @@ def render_sidebar() -> str:
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 2px;">
                     <div style="background: linear-gradient(135deg, #7c3aed, #ea580c); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1.2rem; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">⚡</div>
                     <div>
-                        <div class="nav-logo">Pragma AI Hub</div>
+                        <div class="nav-logo">Sprinto AI Hub</div>
                         <div class="nav-subtitle">Intelligent Agile Tooling</div>
                     </div>
                 </div>
@@ -277,7 +277,7 @@ def change_page(new_page: str):
 def render_home():
     # Renderizamos solo la cabecera en un string HTML
     html_header = """<div class="home-container" style="padding-bottom: 0;">
-<h1 class="home-title">Bienvenido a Pragma AI Hub</h1>
+<h1 class="home-title">Bienvenido a Sprinto AI Hub</h1>
 <p class="home-subtitle" style="margin-bottom: 1.5rem;">Tu espacio de trabajo para la gestión ágil potenciada por Inteligencia Artificial.</p>
 </div>"""
     st.markdown(html_header, unsafe_allow_html=True)
@@ -379,7 +379,7 @@ def render_home():
 
 def main() -> None:
     st.set_page_config(
-        page_title="Pragma AI Hub",
+        page_title="Sprinto AI Hub",
         page_icon="⚡",
         layout="wide",
         initial_sidebar_state="expanded"
@@ -408,7 +408,7 @@ def main() -> None:
 
     # Footer fijo al fondo de la página
     st.markdown(
-        '<div class="app-footer">⚡ Pragma AI Hub · v0.5.0 · Powered by Qwen 3 · Firebase Firestore</div>',
+        '<div class="app-footer">⚡ Sprinto AI Hub · v0.5.0 · Powered by Qwen 3 · Firebase Firestore</div>',
         unsafe_allow_html=True
     )
 

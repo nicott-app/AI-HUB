@@ -349,17 +349,17 @@ def render_epic_breaker():
                         st.session_state.current_page = "📊 Priorizador Multipropósito"
                         st.rerun()
 
-                    if st.button("🚀 Enviar todo directamente a Pragma", type="primary", use_container_width=True):
+                    if st.button("🚀 Enviar todo directamente a Sprinto", type="primary", use_container_width=True):
                         # Acumular las últimas historias antes de enviar
                         pipeline["all_stories"].extend(stories)
-                        _deploy_to_pragma(repo, pipeline["all_stories"], pipeline.get("project_id"))
+                        _deploy_to_sprinto(repo, pipeline["all_stories"], pipeline.get("project_id"))
 
             else:
                 # Comportamiento normal independiente
-                if st.button("Enviar a Pragma", type="primary", use_container_width=True):
+                if st.button("Enviar a Sprinto", type="primary", use_container_width=True):
                     project_id = st.session_state.get("target_project_id")
                     epic = st.session_state.get("current_epic")
-                    _deploy_to_pragma(repo, stories, project_id, epic)
+                    _deploy_to_sprinto(repo, stories, project_id, epic)
 
         # Botón de regreso tras éxito
         if st.session_state.get("send_success"):
@@ -371,8 +371,8 @@ def render_epic_breaker():
                 st.rerun()
 
 
-def _deploy_to_pragma(repo, stories, project_id, epic=None):
-    """Lógica extraída de envío a Pragma."""
+def _deploy_to_sprinto(repo, stories, project_id, epic=None):
+    """Lógica extraída de envío a Sprinto."""
     if not project_id:
         st.error("❌ No hay proyecto destino configurado.")
         return
@@ -402,13 +402,12 @@ def _deploy_to_pragma(repo, stories, project_id, epic=None):
 
         # Limpiar caché
         progress.progress(95, text="Limpiando caché...")
-        from src.data.cache import cached_epics, cached_stories
-        cached_epics.clear()
-        cached_stories.clear()
+        from src.data.cache import clear_project_cache
+        clear_project_cache(project_id)
 
         progress.progress(100, text="¡Listo!")
         st.success(
-            f"✅ **¡{total} historia{'s' if total > 1 else ''} enviada{'s' if total > 1 else ''} a Pragma!** "
+            f"✅ **¡{total} historia{'s' if total > 1 else ''} enviada{'s' if total > 1 else ''} a Sprinto!** "
             f"Ya puedes verlas en tu tablero."
         )
         st.balloons()
