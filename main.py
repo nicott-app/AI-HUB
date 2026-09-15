@@ -10,7 +10,6 @@ load_dotenv()
 # ─── Módulos y Páginas disponibles ─────────────────────────────────────────────
 MODULES = {
     "🚀 Sprinto Strategy": [
-        {"name": "🏠 Inicio", "id": "home", "icon": "🏠", "desc": "Panel principal y visión general", "status": "active"},
         {"name": "🧠 Generador de Casos de Uso IA", "id": "ai_usecase", "icon": "🧠", "desc": "Obtén una lista priorizada de oportunidades de IA", "status": "active"},
         {"name": "📋 Canvas de Proyecto IA", "id": "ai_canvas", "icon": "📋", "desc": "Define un proyecto de IA completo", "status": "active"},
         {"name": "🎯 Generador de OKRs", "id": "okr", "icon": "🎯", "desc": "Traduce tu visión en OKRs accionables", "status": "active"},
@@ -152,6 +151,13 @@ def inject_nav_css():
             border-radius: 0 !important;
         }
         
+        /* Eliminar el padding interno del contenido del expander para alinear los botones con Inicio */
+        section[data-testid="stSidebar"] [data-testid="stExpanderDetails"] {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        
         /* HOME PAGE STYLES */
         .home-container {
             text-align: center;
@@ -262,6 +268,18 @@ def render_sidebar() -> str:
 
         if "current_page" not in st.session_state:
             st.session_state.current_page = "home"
+
+        # Botón de Inicio independiente
+        is_home_active = (st.session_state.current_page == "home")
+        st.button(
+            "🏠 Inicio",
+            key="nav_home",
+            use_container_width=True,
+            type="primary" if is_home_active else "secondary",
+            on_click=change_page,
+            args=("home",)
+        )
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
         for module_name, pages in MODULES.items():
             with st.expander(module_name, expanded=True):
