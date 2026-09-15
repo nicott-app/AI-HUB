@@ -100,7 +100,7 @@ def inject_nav_css():
             opacity: 0.9 !important;
         }
         
-        /* Botones de navegación (Secondary) en el sidebar sin bordes */
+        /* Botones de navegación (Secondary) en el sidebar sin bordes y más compactos */
         section[data-testid="stSidebar"] button[kind="secondary"] {
             border: none !important;
             background: transparent !important;
@@ -109,6 +109,12 @@ def inject_nav_css():
             padding-left: 1rem !important;
             color: #4b5563 !important;
             font-weight: 500 !important;
+            min-height: 2.2rem !important;
+            padding-top: 0.1rem !important;
+            padding-bottom: 0.1rem !important;
+        }
+        section[data-testid="stSidebar"] div.stButton {
+            margin-bottom: -0.5rem !important; /* Reduce el espacio vertical entre botones */
         }
         section[data-testid="stSidebar"] button[kind="secondary"]:hover {
             background: #f3f4f6 !important;
@@ -123,6 +129,13 @@ def inject_nav_css():
         }
         section[data-testid="stSidebar"] [data-testid="stExpander"] > details {
             border: none !important;
+        }
+        /* Añadir borde de color sutil (estilo ribbon) al título de las secciones */
+        section[data-testid="stSidebar"] [data-testid="stExpander"] details summary {
+            border-left: 3px solid #7c3aed !important;
+            padding-left: 0.75rem !important;
+            margin-bottom: 0.2rem !important;
+            border-radius: 0 !important;
         }
         
         /* HOME PAGE STYLES */
