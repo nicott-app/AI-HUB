@@ -151,9 +151,9 @@ def inject_nav_css():
             border-radius: 0 !important;
         }
         
-        /* Eliminar el padding interno del contenido del expander para alinear los botones con Inicio */
+        /* Añadir un margen interno al contenido del expander para indentar las herramientas */
         section[data-testid="stSidebar"] [data-testid="stExpanderDetails"] {
-            padding-left: 0 !important;
+            padding-left: 1rem !important;
             padding-right: 0 !important;
             padding-bottom: 0 !important;
         }
