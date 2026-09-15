@@ -21,8 +21,8 @@ MODULES = {
         {"name": "🃏 AI Planning Poker", "id": "planning_poker", "icon": "🃏", "desc": "Estima el esfuerzo de las tareas con IA", "status": "active"},
     ],
     "🩺 Sprinto Ops & Quality": [
-        {"name": "🩺 Dashboard de Salud", "id": "health_dash", "icon": "🩺", "desc": "Diagnóstico del Sprint en tiempo real", "status": "pending"},
-        {"name": "🧪 Generador de Casos de Prueba", "id": "qa_gen", "icon": "🧪", "desc": "Genera Gherkin a partir de historias", "status": "pending"},
+        {"name": "🩺 Dashboard de Salud", "id": "health_dash", "icon": "🩺", "desc": "Diagnóstico del Sprint en tiempo real", "status": "active"},
+        {"name": "🧪 Generador de Pruebas", "id": "qa_gen", "icon": "🧪", "desc": "Gherkin a partir de historias", "status": "pending"},
         {"name": "📚 Documentación Automática", "id": "docs_gen", "icon": "📚", "desc": "Redacta Release Notes y manuales", "status": "pending"},
     ]
 }
@@ -363,6 +363,9 @@ def main() -> None:
     elif page == "planning_poker":
         from src.ui.planning_poker_view import render_planning_poker
         render_planning_poker()
+    elif page == "health_dash":
+        from src.ui.health_dash_view import render_health_dash
+        render_health_dash()
     else:
         st.warning(f"La herramienta '{page}' está en construcción.")
 

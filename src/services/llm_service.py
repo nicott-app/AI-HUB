@@ -248,3 +248,17 @@ class LLMService:
         except Exception as e:
             logger.error(f"Error en estimate_stories: {e}")
             raise
+
+    def diagnose_sprint(self, metrics: dict):
+        """Diagnostica la salud del proyecto en base a métricas Kanban."""
+        from src.services.prompts import health_dashboard
+        try:
+            content = self._call(
+                system_prompt=health_dashboard.SYSTEM_PROMPT,
+                user_content=health_dashboard.build_user_prompt(metrics),
+                **health_dashboard.CALL_PARAMS,
+            )
+            return health_dashboard.parse_response(content)
+        except Exception as e:
+            logger.error(f"Error en diagnose_sprint: {e}")
+            raise
