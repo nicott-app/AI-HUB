@@ -194,7 +194,8 @@ def inject_nav_css():
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             width: 100%;
-            height: 250px;
+            min-height: 240px;
+            height: 100%;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -206,28 +207,29 @@ def inject_nav_css():
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
         .card-content {
-            padding: 1.5rem 1.5rem;
+            padding: 1.5rem 1rem;
             flex-grow: 1;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-start;
             height: 100%;
+            gap: 0.5rem;
         }
         .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 2.2rem;
+            margin-bottom: 0.2rem;
         }
         .card-title {
             font-size: 1.1rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
-            margin-top: 0;
-            height: 3rem;
+            margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #1f2937;
+            line-height: 1.3;
         }
         .card-desc {
             color: #4b5563;
@@ -235,8 +237,6 @@ def inject_nav_css():
             line-height: 1.4;
             text-align: center;
             margin: 0;
-            height: 4rem;
-            overflow: hidden;
         }
         .card-pending {
             opacity: 0.6;
@@ -321,28 +321,31 @@ def render_home():
     
     # Renderizamos las secciones
     for module_name, pages in MODULES.items():
-        st.markdown(f"### {module_name}")
-        st.markdown("---")
-        
-        # Filtramos la página de inicio (home) del grid
-        module_pages = [p for p in pages if p["id"] != "home"]
-        
-        cols = st.columns(3, gap="medium")
-        for idx, page in enumerate(module_pages):
-            col = cols[idx % 3]
-            with col:
-                is_pending = page["status"] == "pending"
-                card_class = "tool-card card-pending" if is_pending else "tool-card"
-                badge_html = '<div class="badge-pending">Próximamente</div>' if is_pending else ''
-                
-                st.markdown(f"""<div class="{card_class}">
-<div class="card-content">
-{badge_html}
-<div class="card-icon">{page["icon"]}</div>
-<h2 class="card-title">{page["name"].replace(page["icon"]+' ', '')}</h2>
-<p class="card-desc">{page["desc"]}</p>
-</div>
-</div>""", unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown(f"### {module_name}")
+            st.markdown("---")
+            
+            # Filtramos la página de inicio (home) del grid
+            module_pages = [p for p in pages if p["id"] != "home"]
+            
+            cols = st.columns(3, gap="medium")
+            for idx, page in enumerate(module_pages):
+                col = cols[idx % 3]
+                with col:
+                    is_pending = page["status"] == "pending"
+                    card_class = "tool-card card-pending" if is_pending else "tool-card"
+                    badge_html = '<div class="badge-pending">Próximamente</div>' if is_pending else ''
+                    
+                    st.markdown(f"""<div class="{card_class}">
+    <div class="card-content">
+    {badge_html}
+    <div class="card-icon">{page["icon"]}</div>
+    <h2 class="card-title">{page["name"].replace(page["icon"]+' ', '')}</h2>
+    <p class="card-desc">{page["desc"]}</p>
+    </div>
+    </div>""", unsafe_allow_html=True)
+            
+        st.markdown("<br>", unsafe_allow_html=True)
 
                 if not is_pending:
                     st.button(
