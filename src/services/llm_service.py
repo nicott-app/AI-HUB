@@ -276,3 +276,17 @@ class LLMService:
         except Exception as e:
             logger.error(f"Error en generate_test_cases: {e}")
             raise
+
+    def generate_release_notes(self, stories: List[UserStory], version: str, tone: str):
+        """Genera Notas de la Versión (Release Notes) a partir de historias completadas."""
+        from src.services.prompts import docs_generator
+        try:
+            content = self._call(
+                system_prompt=docs_generator.SYSTEM_PROMPT,
+                user_content=docs_generator.build_user_prompt(stories, version, tone),
+                **docs_generator.CALL_PARAMS,
+            )
+            return docs_generator.parse_response(content)
+        except Exception as e:
+            logger.error(f"Error en generate_release_notes: {e}")
+            raise
