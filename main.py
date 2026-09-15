@@ -7,14 +7,24 @@ import streamlit as st
 
 load_dotenv()
 
-# ─── Páginas disponibles ───────────────────────────────────────────────────────
-PAGES = {
-    "🏠 Inicio": "home",
-    "🧠 Generador de Casos de Uso IA": "ai_usecase",
-    "📋 Canvas de Proyecto IA": "ai_canvas",
-    "🎯 Generador de OKRs": "okr",
-    "🪓 Troceador de Épicas": "epic_breaker",
-    "📊 Priorizador Multipropósito": "prioritizer",
+# ─── Módulos y Páginas disponibles ─────────────────────────────────────────────
+MODULES = {
+    "🚀 Sprinto Strategy": [
+        {"name": "🏠 Inicio", "id": "home", "icon": "🏠", "desc": "Panel principal y visión general", "status": "active"},
+        {"name": "🧠 Generador de Casos de Uso IA", "id": "ai_usecase", "icon": "🧠", "desc": "Obtén una lista priorizada de oportunidades de IA", "status": "active"},
+        {"name": "📋 Canvas de Proyecto IA", "id": "ai_canvas", "icon": "📋", "desc": "Define un proyecto de IA completo", "status": "active"},
+        {"name": "🎯 Generador de OKRs", "id": "okr", "icon": "🎯", "desc": "Traduce tu visión en OKRs accionables", "status": "active"},
+    ],
+    "🛠️ Sprinto Delivery": [
+        {"name": "🪓 Troceador de Épicas", "id": "epic_breaker", "icon": "🪓", "desc": "Descompón épicas en historias de usuario", "status": "active"},
+        {"name": "📊 Priorizador Multipropósito", "id": "prioritizer", "icon": "📊", "desc": "Evalúa tu backlog con frameworks (RICE, WSJF...)", "status": "active"},
+        {"name": "🃏 AI Planning Poker", "id": "planning_poker", "icon": "🃏", "desc": "Estima el esfuerzo de las tareas con IA", "status": "pending"},
+    ],
+    "🩺 Sprinto Ops & Quality": [
+        {"name": "🩺 Dashboard de Salud", "id": "health_dash", "icon": "🩺", "desc": "Diagnóstico del Sprint en tiempo real", "status": "pending"},
+        {"name": "🧪 Generador de Casos de Prueba", "id": "qa_gen", "icon": "🧪", "desc": "Genera Gherkin a partir de historias", "status": "pending"},
+        {"name": "📚 Documentación Automática", "id": "docs_gen", "icon": "📚", "desc": "Redacta Release Notes y manuales", "status": "pending"},
+    ]
 }
 
 def inject_nav_css():
@@ -55,24 +65,6 @@ def inject_nav_css():
             font-weight: 600;
         }
 
-
-        /* Sección label */
-        .nav-section-label {
-            padding: 1rem 1.5rem 0.4rem;
-            font-size: 0.65rem;
-            color: #9ca3af;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            font-weight: 700;
-        }
-
-        /* Divisor decorativo en el sidebar */
-        .nav-divider {
-            margin: 1rem 1.5rem 0;
-            border: none;
-            border-top: 1px solid #e2e5f1;
-        }
-
         /* Footer fijo al fondo de la ventana */
         .app-footer {
             position: fixed;
@@ -95,33 +87,6 @@ def inject_nav_css():
             padding-bottom: 2rem !important;
         }
         
-        /* ─── ESTILOS DEL MENÚ DE NAVEGACIÓN (st.radio) ─── */
-        /* Ocultar el círculo nativo del radio button */
-        div[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {
-            display: none !important;
-        }
-        /* Estilo base para las opciones del menú */
-        div[data-testid="stRadio"] div[role="radiogroup"] label {
-            padding: 0.6rem 1rem;
-            border-radius: 8px;
-            margin-bottom: 0.2rem;
-            background-color: transparent;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        /* Efecto hover */
-        div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
-            background-color: #f3f4f6;
-        }
-        /* Estilo para la opción activa (usando :has) */
-        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
-            background-color: #f3e8ff;
-        }
-        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) p {
-            color: #7c3aed !important;
-            font-weight: 700 !important;
-        }
-
         /* ─── ESTILO BOTONES PRINCIPALES ─── */
         button[kind="primary"] {
             background: linear-gradient(90deg, #7c3aed, #ea580c) !important;
@@ -138,7 +103,7 @@ def inject_nav_css():
         /* HOME PAGE STYLES */
         .home-container {
             text-align: center;
-            padding: 2rem 0 4rem;
+            padding: 2rem 0 2rem;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
         .home-title {
@@ -153,14 +118,8 @@ def inject_nav_css():
         .home-subtitle {
             font-size: 1.2rem;
             color: #4b5563;
-            margin-bottom: 3.5rem;
+            margin-bottom: 2rem;
             font-weight: 400;
-        }
-        .cards-container {
-            display: flex;
-            gap: 2.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
         }
         .tool-card {
             background: white;
@@ -168,18 +127,19 @@ def inject_nav_css():
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             width: 100%;
-            height: 310px; /* ALTURA FIJA ESTRICTA */
+            height: 250px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 1rem;
         }
         .tool-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
         .card-content {
-            padding: 1.8rem 1.5rem;
+            padding: 1.5rem 1.5rem;
             flex-grow: 1;
             text-align: center;
             display: flex;
@@ -188,46 +148,52 @@ def inject_nav_css():
             height: 100%;
         }
         .card-icon {
-            font-size: 3rem;
+            font-size: 2.5rem;
             margin-bottom: 0.5rem;
         }
         .card-title {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
             margin-top: 0;
-            height: 3.5rem; /* ALTURA FIJA: para 2 líneas */
+            height: 3rem;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        .title-purple { color: #7c3aed; }
-        .title-orange { color: #ea580c; }
-        .card-desc {
             color: #1f2937;
-            font-size: 0.92rem;
+        }
+        .card-desc {
+            color: #4b5563;
+            font-size: 0.85rem;
             line-height: 1.4;
-            text-align: left;
+            text-align: center;
             margin: 0;
-            height: 5.5rem; /* ALTURA FIJA: para 4 líneas */
+            height: 4rem;
             overflow: hidden;
         }
-        .card-footer {
+        .card-pending {
+            opacity: 0.6;
             background: #f9fafb;
-            border-top: 1px solid #e5e7eb;
-            padding: 1rem;
-            font-size: 0.85rem;
-            color: #6b7280;
-            text-align: center;
-            font-weight: 500;
-            margin-top: auto;
+        }
+        .badge-pending {
+            background: #e5e7eb;
+            color: #4b5563;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
         }
         </style>
     """, unsafe_allow_html=True)
 
 
+def change_page(new_page: str):
+    st.session_state.current_page = new_page
+
 def render_sidebar() -> str:
-    """Renderiza la navegación lateral y devuelve la página seleccionada."""
+    """Renderiza la navegación lateral dividida en módulos."""
     with st.sidebar:
         # Cabecera con logo circular ⚡
         st.markdown("""
@@ -242,139 +208,76 @@ def render_sidebar() -> str:
             </div>
         """, unsafe_allow_html=True)
 
-        st.markdown('<div class="nav-section-label">Herramientas</div>', unsafe_allow_html=True)
-
-        # Inicializar estado si no existe
-        page_keys = list(PAGES.keys())
         if "current_page" not in st.session_state:
-            st.session_state.current_page = page_keys[0]
+            st.session_state.current_page = "home"
 
-        try:
-            current_idx = page_keys.index(st.session_state.current_page)
-        except ValueError:
-            current_idx = 0
+        for module_name, pages in MODULES.items():
+            with st.expander(module_name, expanded=True):
+                for page in pages:
+                    if page["status"] == "active":
+                        # Botones para páginas activas
+                        is_active = (st.session_state.current_page == page["id"])
+                        btn_type = "primary" if is_active else "secondary"
+                        st.button(
+                            page["name"],
+                            key=f"nav_{page['id']}",
+                            use_container_width=True,
+                            type=btn_type,
+                            on_click=change_page,
+                            args=(page["id"],)
+                        )
+                    else:
+                        # Label deshabilitado para las pendientes
+                        st.markdown(f"<div style='padding: 0.4rem 1rem; color:#9ca3af; font-size:0.9rem;'>⏳ {page['name']} <i>(Próximamente)</i></div>", unsafe_allow_html=True)
 
-        # Navegación con radio buttons (sin atarlo directamente a la sesión)
-        selected_page = st.radio(
-            label="",
-            options=page_keys,
-            index=current_idx,
-            label_visibility="collapsed"
-        )
+    return st.session_state.current_page
 
-        if selected_page != st.session_state.current_page:
-            st.session_state.current_page = selected_page
-            st.rerun()
-
-        st.markdown('<hr class="nav-divider">', unsafe_allow_html=True)
-
-    return PAGES[st.session_state.current_page]
-
-
-def change_page(new_page: str):
-    st.session_state.current_page = new_page
 
 def render_home():
-    # Renderizamos solo la cabecera en un string HTML
     html_header = """<div class="home-container" style="padding-bottom: 0;">
 <h1 class="home-title">Bienvenido a Sprinto AI Hub</h1>
 <p class="home-subtitle" style="margin-bottom: 1.5rem;">Tu espacio de trabajo para la gestión ágil potenciada por Inteligencia Artificial.</p>
 </div>"""
     st.markdown(html_header, unsafe_allow_html=True)
     
-    # Renderizamos las tarjetas en filas (ordenadas lógicamente)
-    # Fila 1: Ideación, Definición y Estrategia
-    c1, c2, c_okr = st.columns(3, gap="medium")
-    with c1:
-        st.markdown("""<div class="tool-card" style="width: 100%; min-width: auto; margin-bottom: 1rem;">
+    # Renderizamos las secciones
+    for module_name, pages in MODULES.items():
+        st.markdown(f"### {module_name}")
+        st.markdown("---")
+        
+        # Filtramos la página de inicio (home) del grid
+        module_pages = [p for p in pages if p["id"] != "home"]
+        
+        cols = st.columns(3, gap="medium")
+        for idx, page in enumerate(module_pages):
+            col = cols[idx % 3]
+            with col:
+                is_pending = page["status"] == "pending"
+                card_class = "tool-card card-pending" if is_pending else "tool-card"
+                badge_html = '<div class="badge-pending">Próximamente</div>' if is_pending else ''
+                
+                st.markdown(f"""<div class="{card_class}">
 <div class="card-content">
-<div class="card-icon" style="color: #059669;">🧠</div>
-<h2 class="card-title" style="color: #059669; font-size:1.3rem;">Generador de Casos de Uso IA</h2>
-<p class="card-desc" style="font-size:0.95rem;">Obtén una lista priorizada de oportunidades de IA, evaluadas por impacto y esfuerzo.</p>
+{badge_html}
+<div class="card-icon">{page["icon"]}</div>
+<h2 class="card-title">{page["name"].replace(page["icon"]+' ', '')}</h2>
+<p class="card-desc">{page["desc"]}</p>
 </div>
-<div class="card-footer">Ideación Estratégica</div>
 </div>""", unsafe_allow_html=True)
-        st.button(
-            "Abrir Casos de Uso", 
-            use_container_width=True, 
-            type="primary", 
-            on_click=change_page, 
-            args=("🧠 Generador de Casos de Uso IA",)
-        )
-            
-    with c2:
-        st.markdown("""<div class="tool-card" style="width: 100%; min-width: auto; margin-bottom: 1rem;">
-<div class="card-content">
-<div class="card-icon" style="color: #2563eb;">📋</div>
-<h2 class="card-title" style="color: #2563eb; font-size:1.3rem;">Canvas de Proyecto IA</h2>
-<p class="card-desc" style="font-size:0.95rem;">Define un proyecto de IA completo. Genera un documento ejecutivo con métricas, roadmap y ROI.</p>
-</div>
-<div class="card-footer">Definición Ejecutiva</div>
-</div>""", unsafe_allow_html=True)
-        st.button(
-            "Abrir Canvas", 
-            use_container_width=True, 
-            type="primary", 
-            on_click=change_page, 
-            args=("📋 Canvas de Proyecto IA",)
-        )
 
-    with c_okr:
-        st.markdown("""<div class="tool-card" style="width: 100%; min-width: auto; margin-bottom: 1rem;">
-<div class="card-content">
-<div class="card-icon" style="color: #db2777;">🎯</div>
-<h2 class="card-title" style="color: #db2777; font-size:1.3rem;">Generador de OKRs</h2>
-<p class="card-desc" style="font-size:0.95rem;">Traduce tu visión en Objetivos inspiracionales y Key Results medibles y accionables.</p>
-</div>
-<div class="card-footer">Alineación Estratégica</div>
-</div>""", unsafe_allow_html=True)
-        st.button(
-            "Abrir Generador OKRs", 
-            use_container_width=True, 
-            type="primary", 
-            on_click=change_page, 
-            args=("🎯 Generador de OKRs",)
-        )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # Fila 2: Desglose y Priorización
-    c3, c4 = st.columns(2, gap="large")
-    with c3:
-        st.markdown("""<div class="tool-card" style="width: 100%; min-width: auto; margin-bottom: 1rem;">
-<div class="card-content">
-<div class="card-icon" style="color: #7c3aed;">🪓</div>
-<h2 class="card-title title-purple">Troceador de Épicas</h2>
-<p class="card-desc">Describe una épica y deja que la IA la descomponga automáticamente en historias de usuario listas para el Sprint, con criterios de aceptación.</p>
-</div>
-<div class="card-footer">Desglose Ágil</div>
-</div>""", unsafe_allow_html=True)
-        st.button(
-            "Abrir Troceador de Épicas", 
-            key="btn_breaker",
-            use_container_width=True, 
-            type="primary", 
-            on_click=change_page, 
-            args=("🪓 Troceador de Épicas",)
-        )
-            
-    with c4:
-        st.markdown("""<div class="tool-card" style="width: 100%; min-width: auto; margin-bottom: 1rem;">
-<div class="card-content">
-<div class="card-icon" style="color: #ea580c;">📊</div>
-<h2 class="card-title title-orange">Priorizador Multipropósito</h2>
-<p class="card-desc">Evalúa tu backlog con los frameworks más usados en la industria: RICE, WSJF, MoSCoW, Kano y la Matriz Valor vs. Complejidad.</p>
-</div>
-<div class="card-footer">Priorización y Estimación</div>
-</div>""", unsafe_allow_html=True)
-        st.button(
-            "Abrir Priorizador Multipropósito", 
-            key="btn_prioritizer",
-            use_container_width=True, 
-            type="primary", 
-            on_click=change_page, 
-            args=("📊 Priorizador Multipropósito",)
-        )
+                if not is_pending:
+                    st.button(
+                        f"Abrir {page['name'].replace(page['icon']+' ', '')}", 
+                        key=f"home_btn_{page['id']}",
+                        use_container_width=True, 
+                        type="primary", 
+                        on_click=change_page, 
+                        args=(page["id"],)
+                    )
+                else:
+                    st.button("En desarrollo", key=f"home_btn_{page['id']}", disabled=True, use_container_width=True)
+                    
+        st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 def main() -> None:
@@ -405,10 +308,12 @@ def main() -> None:
     elif page == "okr":
         from src.ui.okr_view import render_okr_generator
         render_okr_generator()
+    else:
+        st.warning(f"La herramienta '{page}' está en construcción.")
 
     # Footer fijo al fondo de la página
     st.markdown(
-        '<div class="app-footer">⚡ Sprinto AI Hub · v0.5.0 · Powered by Qwen 3 · Firebase Firestore</div>',
+        '<div class="app-footer">⚡ Sprinto AI Hub · v0.6.0 · Modular UI · Powered by Llama 3 & Firestore</div>',
         unsafe_allow_html=True
     )
 
