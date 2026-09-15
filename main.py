@@ -337,28 +337,28 @@ def render_home():
                     badge_html = '<div class="badge-pending">Próximamente</div>' if is_pending else ''
                     
                     st.markdown(f"""<div class="{card_class}">
-    <div class="card-content">
-    {badge_html}
-    <div class="card-icon">{page["icon"]}</div>
-    <h2 class="card-title">{page["name"].replace(page["icon"]+' ', '')}</h2>
-    <p class="card-desc">{page["desc"]}</p>
-    </div>
-    </div>""", unsafe_allow_html=True)
-            
-        st.markdown("<br>", unsafe_allow_html=True)
+                        <div class="card-content">
+                        {badge_html}
+                        <div class="card-icon">{page["icon"]}</div>
+                        <h2 class="card-title">{page["name"].replace(page["icon"]+' ', '')}</h2>
+                        <p class="card-desc">{page["desc"]}</p>
+                        </div>
+                        </div>""", unsafe_allow_html=True)
 
-                if not is_pending:
-                    st.button(
-                        f"Abrir {page['name'].replace(page['icon']+' ', '')}", 
-                        key=f"home_btn_{page['id']}",
-                        use_container_width=True, 
-                        type="primary", 
-                        on_click=change_page, 
-                        args=(page["id"],)
-                    )
-                else:
-                    st.button("En desarrollo", key=f"home_btn_{page['id']}", disabled=True, use_container_width=True)
-                    
+                    if not is_pending:
+                        st.button(
+                            f"Abrir {page['name'].replace(page['icon']+' ', '')}", 
+                            key=f"home_btn_{page['id']}",
+                            use_container_width=True, 
+                            type="primary", 
+                            on_click=change_page, 
+                            args=(page["id"],)
+                        )
+                    else:
+                        st.button("En desarrollo", key=f"home_btn_{page['id']}", disabled=True, use_container_width=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
         st.markdown("<br><br>", unsafe_allow_html=True)
 
 
