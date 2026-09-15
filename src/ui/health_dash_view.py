@@ -45,11 +45,25 @@ def render_health_dash():
     sp_total = sum(s.story_points for s in all_stories if getattr(s, "story_points", None) is not None)
     sp_done = sum(s.story_points for s in all_stories if getattr(s, "story_points", None) is not None and s.status in ["done", "completado", "terminado"])
     
-    # Estados
+    # Estados (Mapeo a nombres legibles)
+    STATUS_MAP = {
+        "todo": "Por Hacer (To Do)",
+        "backlog": "Backlog",
+        "in_progress": "En Progreso (Doing)",
+        "doing": "En Progreso (Doing)",
+        "qa": "Revisión (QA)",
+        "review": "Revisión (QA)",
+        "done": "Completado (Done)",
+        "completado": "Completado (Done)",
+        "terminado": "Completado (Done)",
+        "bloqueado": "Bloqueado"
+    }
+    
     status_counts = {}
     for s in all_stories:
-        st_name = s.status if s.status else "backlog"
-        status_counts[st_name] = status_counts.get(st_name, 0) + 1
+        raw_status = s.status.lower() if s.status else "backlog"
+        readable_status = STATUS_MAP.get(raw_status, raw_status.capitalize())
+        status_counts[readable_status] = status_counts.get(readable_status, 0) + 1
 
     # MOSTRAR MÉTRICAS
     st.write("### Radiografía del Proyecto")
