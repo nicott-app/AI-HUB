@@ -87,7 +87,7 @@ def inject_nav_css():
             padding-bottom: 2rem !important;
         }
         
-        /* ─── ESTILO BOTONES PRINCIPALES ─── */
+        /* ─── ESTILO BOTONES PRINCIPALES Y NAVEGACIÓN ─── */
         button[kind="primary"] {
             background: linear-gradient(90deg, #7c3aed, #ea580c) !important;
             border: none !important;
@@ -98,6 +98,31 @@ def inject_nav_css():
         }
         button[kind="primary"]:hover {
             opacity: 0.9 !important;
+        }
+        
+        /* Botones de navegación (Secondary) en el sidebar sin bordes */
+        section[data-testid="stSidebar"] button[kind="secondary"] {
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            justify-content: flex-start !important;
+            padding-left: 1rem !important;
+            color: #4b5563 !important;
+            font-weight: 500 !important;
+        }
+        section[data-testid="stSidebar"] button[kind="secondary"]:hover {
+            background: #f3f4f6 !important;
+            color: #111827 !important;
+        }
+        
+        /* Eliminar bordes de los expanders (secciones) en el sidebar */
+        section[data-testid="stSidebar"] [data-testid="stExpander"] {
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+        section[data-testid="stSidebar"] [data-testid="stExpander"] > details {
+            border: none !important;
         }
         
         /* HOME PAGE STYLES */
@@ -123,7 +148,7 @@ def inject_nav_css():
         }
         .tool-card {
             background: white;
-            border: 1px solid #e5e7eb;
+            border: none;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             width: 100%;
