@@ -31,7 +31,7 @@ def render_planning_poker():
         return
 
     # Obtener todas las historias
-    all_stories = repo.get_user_stories(selected_project_id)
+    all_stories = repo.get_stories(selected_project_id)
     # Filtrar las no estimadas
     unestimated = [s for s in all_stories if not s.story_points and not s.estimatedHours]
 
