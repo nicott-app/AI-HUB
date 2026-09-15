@@ -126,6 +126,15 @@ def inject_nav_css():
             padding-top: 0.1rem !important;
             padding-bottom: 0.1rem !important;
         }
+        
+        /* Forzar la alineación izquierda del texto e iconos dentro de los botones */
+        section[data-testid="stSidebar"] button p, 
+        section[data-testid="stSidebar"] button div {
+            text-align: left !important;
+            display: flex;
+            justify-content: flex-start;
+        }
+
         section[data-testid="stSidebar"] div.stButton {
             margin-bottom: -0.5rem !important; /* Reduce el espacio vertical entre botones */
         }
