@@ -9,17 +9,17 @@ load_dotenv()
 
 # ─── Módulos y Páginas disponibles ─────────────────────────────────────────────
 MODULES = {
-    "🚀 Sprinto Strategy": [
+    "Sprinto Strategy": [
         {"name": "🧠 Generador de Casos de Uso IA", "id": "ai_usecase", "icon": "🧠", "desc": "Obtén una lista priorizada de oportunidades de IA", "status": "active"},
         {"name": "📋 Canvas de Proyecto IA", "id": "ai_canvas", "icon": "📋", "desc": "Define un proyecto de IA completo", "status": "active"},
         {"name": "🎯 Generador de OKRs", "id": "okr", "icon": "🎯", "desc": "Traduce tu visión en OKRs accionables", "status": "active"},
     ],
-    "🛠️ Sprinto Delivery": [
+    "Sprinto Delivery": [
         {"name": "🪓 Troceador de Épicas", "id": "epic_breaker", "icon": "🪓", "desc": "Descompón épicas en historias de usuario", "status": "active"},
         {"name": "📊 Priorizador Multipropósito", "id": "prioritizer", "icon": "📊", "desc": "Evalúa tu backlog con frameworks (RICE, WSJF...)", "status": "active"},
         {"name": "🃏 AI Planning Poker", "id": "planning_poker", "icon": "🃏", "desc": "Estima el esfuerzo de las tareas con IA", "status": "active"},
     ],
-    "🩺 Sprinto Ops & Quality": [
+    "Sprinto Ops & Quality": [
         {"name": "🩺 Dashboard de Salud", "id": "health_dash", "icon": "🩺", "desc": "Diagnóstico del Sprint en tiempo real", "status": "active"},
         {"name": "🧪 Generador de Pruebas", "id": "qa_gen", "icon": "🧪", "desc": "Gherkin a partir de historias", "status": "active"},
         {"name": "📚 Documentación Automática", "id": "docs_gen", "icon": "📚", "desc": "Redacta Release Notes y manuales", "status": "active"},
