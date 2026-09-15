@@ -22,7 +22,7 @@ MODULES = {
     ],
     "🩺 Sprinto Ops & Quality": [
         {"name": "🩺 Dashboard de Salud", "id": "health_dash", "icon": "🩺", "desc": "Diagnóstico del Sprint en tiempo real", "status": "active"},
-        {"name": "🧪 Generador de Pruebas", "id": "qa_gen", "icon": "🧪", "desc": "Gherkin a partir de historias", "status": "pending"},
+        {"name": "🧪 Generador de Pruebas", "id": "qa_gen", "icon": "🧪", "desc": "Gherkin a partir de historias", "status": "active"},
         {"name": "📚 Documentación Automática", "id": "docs_gen", "icon": "📚", "desc": "Redacta Release Notes y manuales", "status": "pending"},
     ]
 }
@@ -366,6 +366,9 @@ def main() -> None:
     elif page == "health_dash":
         from src.ui.health_dash_view import render_health_dash
         render_health_dash()
+    elif page == "qa_gen":
+        from src.ui.qa_generator_view import render_qa_generator
+        render_qa_generator()
     else:
         st.warning(f"La herramienta '{page}' está en construcción.")
 

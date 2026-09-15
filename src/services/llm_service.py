@@ -262,3 +262,17 @@ class LLMService:
         except Exception as e:
             logger.error(f"Error en diagnose_sprint: {e}")
             raise
+
+    def generate_test_cases(self, story: UserStory):
+        """Genera casos de prueba en Gherkin a partir de una Historia de Usuario."""
+        from src.services.prompts import qa_generator
+        try:
+            content = self._call(
+                system_prompt=qa_generator.SYSTEM_PROMPT,
+                user_content=qa_generator.build_user_prompt(story),
+                **qa_generator.CALL_PARAMS,
+            )
+            return qa_generator.parse_response(content)
+        except Exception as e:
+            logger.error(f"Error en generate_test_cases: {e}")
+            raise
