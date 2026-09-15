@@ -100,7 +100,21 @@ def inject_nav_css():
             opacity: 0.9 !important;
         }
         
-        /* Botones de navegación (Secondary) en el sidebar sin bordes y más compactos */
+        /* Botón de navegación ACTIVO (Primary) en el sidebar - Color tenue */
+        section[data-testid="stSidebar"] button[kind="primary"] {
+            background: #f3e8ff !important; /* Morado muy claro/tenue */
+            color: #7c3aed !important;      /* Texto morado corporativo */
+            border: none !important;
+            box-shadow: none !important;
+            justify-content: flex-start !important;
+            padding-left: 1rem !important;
+            font-weight: 700 !important;
+            min-height: 2.2rem !important;
+            padding-top: 0.1rem !important;
+            padding-bottom: 0.1rem !important;
+        }
+
+        /* Botones de navegación INACTIVOS (Secondary) en el sidebar sin bordes y más compactos */
         section[data-testid="stSidebar"] button[kind="secondary"] {
             border: none !important;
             background: transparent !important;
