@@ -43,5 +43,10 @@ class TicketRepository(ABC):
     @abstractmethod
     def update_ticket_score(self, project_id: str, ticket_id: str,
                             framework_field: str, score_data: Dict[str, Any]) -> None:
-        """Actualiza el campo de scoring de un ticket concreto."""
+        """Actualiza el score de priorización (RICE, WSJF, etc.) de un ticket."""
+        ...
+
+    @abstractmethod
+    def update_ticket_estimation(self, project_id: str, ticket_id: str, story_points: int, estimated_hours: int) -> None:
+        """Actualiza la estimación de esfuerzo de un ticket."""
         ...

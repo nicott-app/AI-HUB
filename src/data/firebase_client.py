@@ -107,6 +107,19 @@ class FirebaseClient:
             logger.error(f"Error actualizando {framework_field}: {e}")
             raise
 
+    def update_ticket_estimation(self, project_id: str, ticket_id: str, story_points: int, estimated_hours: int) -> None:
+        if not self._db: return
+        try:
+            doc_ref = self._db.collection("projects").document(project_id).collection("tickets").document(ticket_id)
+            doc_ref.update({
+                "storyPoints": story_points,
+                "estimatedHours": estimated_hours,
+                "updatedAt": firestore.SERVER_TIMESTAMP
+            })
+        except Exception as e:
+            logger.error(f"Error actualizando estimación: {e}")
+            raise
+
     def get_epics(self, project_id: str) -> List[Epic]:
         """Obtiene tickets de tipo análisis o desarrollo (tratados como épicas)."""
         if not self._db: return []

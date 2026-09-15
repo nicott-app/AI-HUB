@@ -42,3 +42,10 @@ class ValueComplexityScore(BaseModel):
     quadrant: str = Field(default="Low Value, High Complexity",
                           description="Quick Win | Major Project | Fill In | Thankless Task")
     rationale: str = Field(default="")
+
+class PlanningPokerEstimation(BaseModel):
+    story_points: int = Field(default=0, description="Escala de Fibonacci (1, 2, 3, 5, 8, 13, 21)")
+    estimated_hours: int = Field(default=0, description="Horas aproximadas de esfuerzo")
+    rationale: str = Field(default="Justificación del esfuerzo")
+    risks: list[str] = Field(default_factory=list, description="Lista de riesgos detectados")
+    complexity_drivers: list[str] = Field(default_factory=list, description="Factores de complejidad")

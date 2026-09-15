@@ -17,7 +17,8 @@ from src.models.bi import BIStory
 from src.models.ai_usecase import AIUseCase
 from src.models.ai_canvas import AIProjectCanvas
 from src.models.okr import OKRSet
-from src.services.prompts import epic_breaker, epic_breaker_bi, prioritizer, ai_usecase_generator, ai_canvas_generator, okr_generator
+from src.models.scores import PlanningPokerEstimation
+from src.services.prompts import epic_breaker, epic_breaker_bi, prioritizer, ai_usecase_generator, ai_canvas_generator, okr_generator, planning_poker
 
 logger = logging.getLogger(__name__)
 
@@ -233,4 +234,17 @@ class LLMService:
             return okr_generator.parse_response(content)
         except Exception as e:
             logger.error(f"Error en generate_okrs: {e}")
+            raise
+
+    def estimate_stories(self, stories: List[UserStory]) -> List[PlanningPokerEstimation]:
+        """Estima puntos de historia usando Planning Poker (Fibonacci)."""
+        try:
+            content = self._call(
+                system_prompt=planning_poker.PLANNING_POKER_SYSTEM_PROMPT,
+                user_content=planning_poker.build_planning_poker_prompt(stories),
+                **planning_poker.CALL_PARAMS,
+            )
+            return planning_poker.parse_response(content)
+        except Exception as e:
+            logger.error(f"Error en estimate_stories: {e}")
             raise

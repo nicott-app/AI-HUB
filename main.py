@@ -18,7 +18,7 @@ MODULES = {
     "🛠️ Sprinto Delivery": [
         {"name": "🪓 Troceador de Épicas", "id": "epic_breaker", "icon": "🪓", "desc": "Descompón épicas en historias de usuario", "status": "active"},
         {"name": "📊 Priorizador Multipropósito", "id": "prioritizer", "icon": "📊", "desc": "Evalúa tu backlog con frameworks (RICE, WSJF...)", "status": "active"},
-        {"name": "🃏 AI Planning Poker", "id": "planning_poker", "icon": "🃏", "desc": "Estima el esfuerzo de las tareas con IA", "status": "pending"},
+        {"name": "🃏 AI Planning Poker", "id": "planning_poker", "icon": "🃏", "desc": "Estima el esfuerzo de las tareas con IA", "status": "active"},
     ],
     "🩺 Sprinto Ops & Quality": [
         {"name": "🩺 Dashboard de Salud", "id": "health_dash", "icon": "🩺", "desc": "Diagnóstico del Sprint en tiempo real", "status": "pending"},
@@ -360,6 +360,9 @@ def main() -> None:
     elif page == "okr":
         from src.ui.okr_view import render_okr_generator
         render_okr_generator()
+    elif page == "planning_poker":
+        from src.ui.planning_poker_view import render_planning_poker
+        render_planning_poker()
     else:
         st.warning(f"La herramienta '{page}' está en construcción.")
 

@@ -308,3 +308,17 @@ class FirebaseRepository(TicketRepository):
         except Exception as e:
             logger.error(f"Error actualizando {framework_field}: {e}")
             raise
+
+    def update_ticket_estimation(self, project_id: str, ticket_id: str, story_points: int, estimated_hours: int) -> None:
+        if not self._db:
+            return
+        try:
+            ref = self._tickets_ref(project_id).document(ticket_id)
+            ref.update({
+                "storyPoints": story_points,
+                "estimatedHours": estimated_hours,
+                "updatedAt": firestore.SERVER_TIMESTAMP
+            })
+        except Exception as e:
+            logger.error(f"Error actualizando estimación: {e}")
+            raise
