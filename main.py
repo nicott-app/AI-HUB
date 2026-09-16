@@ -206,7 +206,7 @@ def inject_nav_css():
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
         .card-content {
-            padding: 1.5rem 1rem;
+            padding: 1.5rem 1rem 1rem;
             flex-grow: 1;
             text-align: center;
             display: flex;
@@ -214,14 +214,14 @@ def inject_nav_css():
             align-items: center;
             justify-content: flex-start;
             height: 100%;
-            gap: 0.5rem;
+            gap: 0.3rem;
         }
         .card-icon {
             font-size: 2.2rem;
-            margin-bottom: 0.2rem;
+            margin-bottom: 0.1rem;
         }
         .card-title {
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 700;
             margin: 0;
             display: flex;
