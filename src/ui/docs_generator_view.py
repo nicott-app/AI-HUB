@@ -29,7 +29,7 @@ def render_docs_generator():
         return
 
     # Buscar historias completadas
-    all_stories = repo.get_stories(selected_project_id)
+    all_stories = repo.get_stories(selected_project_id, include_done=True)
     done_statuses = ["done", "completado", "terminado"]
     completed_stories = [s for s in all_stories if s.status and s.status.lower() in done_statuses]
 

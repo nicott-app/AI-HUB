@@ -26,7 +26,7 @@ class TicketRepository(ABC):
         ...
 
     @abstractmethod
-    def get_stories(self, project_id: str) -> list:
+    def get_stories(self, project_id: str, include_done: bool = False) -> list:
         """Devuelve tickets priorizables (tareas, mejoras, desarrollos, entregables)."""
         ...
 

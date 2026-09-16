@@ -172,7 +172,7 @@ class FirebaseRepository(TicketRepository):
             logger.error(f"Error obteniendo épicas: {e}")
             return []
 
-    def get_stories(self, project_id: str) -> List[UserStory]:
+    def get_stories(self, project_id: str, include_done: bool = False) -> List[UserStory]:
         if not self._db:
             return []
         try:
@@ -184,7 +184,13 @@ class FirebaseRepository(TicketRepository):
                     status = str(data.get("status", "")).lower()
                     is_archived = data.get("archived", False)
                     
-                    if status not in DONE_STATUSES and data.get("type") in STORY_TYPES and not is_archived:
+                    is_story = data.get("type") in STORY_TYPES
+                    is_done = status in DONE_STATUSES
+                    
+                    if is_story and not is_archived:
+                        if is_done and not include_done:
+                            continue
+                            
                         if not data.get("title"): data["title"] = "Sin título"
                         if not data.get("description"): data["description"] = ""
                         
