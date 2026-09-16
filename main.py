@@ -105,21 +105,17 @@ def inject_nav_css():
             color: #7c3aed !important;      /* Texto morado corporativo */
             border: none !important;
             box-shadow: none !important;
-            justify-content: flex-start !important;
-            padding-left: 1rem !important;
             font-weight: 700 !important;
             min-height: 2.2rem !important;
             padding-top: 0.1rem !important;
             padding-bottom: 0.1rem !important;
         }
 
-        /* Botones de navegación INACTIVOS (Secondary) en el sidebar sin bordes y más compactos */
+        /* Botones de navegación INACTIVOS (Secondary) en el sidebar */
         section[data-testid="stSidebar"] button[kind="secondary"] {
             border: none !important;
             background: transparent !important;
             box-shadow: none !important;
-            justify-content: flex-start !important;
-            padding-left: 1rem !important;
             color: #4b5563 !important;
             font-weight: 500 !important;
             min-height: 2.2rem !important;
@@ -127,12 +123,26 @@ def inject_nav_css():
             padding-bottom: 0.1rem !important;
         }
         
-        /* Forzar la alineación izquierda del texto e iconos dentro de los botones */
+        /* Botón de Inicio (y cualquier botón fuera de secciones): centrado */
+        section[data-testid="stSidebar"] button {
+            justify-content: center !important;
+            padding-left: 0 !important;
+        }
         section[data-testid="stSidebar"] button p, 
         section[data-testid="stSidebar"] button div {
+            text-align: center !important;
+            justify-content: center !important;
+        }
+
+        /* Botones dentro de las secciones (expanders): alineados a la izquierda */
+        section[data-testid="stSidebar"] [data-testid="stExpander"] button {
+            justify-content: flex-start !important;
+            padding-left: 1rem !important;
+        }
+        section[data-testid="stSidebar"] [data-testid="stExpander"] button p, 
+        section[data-testid="stSidebar"] [data-testid="stExpander"] button div {
             text-align: left !important;
-            display: flex;
-            justify-content: flex-start;
+            justify-content: flex-start !important;
         }
 
         section[data-testid="stSidebar"] div.stButton {
@@ -206,7 +216,7 @@ def inject_nav_css():
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
         .card-content {
-            padding: 1.5rem 1rem 1rem;
+            padding: 1.5rem 1rem 2rem;
             flex-grow: 1;
             text-align: center;
             display: flex;
