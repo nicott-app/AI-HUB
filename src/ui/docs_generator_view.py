@@ -39,14 +39,14 @@ def render_docs_generator():
         st.warning("No hay historias en estado 'Completado' para generar documentación.")
         return
 
-    story_options = {s.id: f"{s.code}: {s.title}" for s in completed_stories}
-    selected_story_ids = st.multiselect(
-        "Selecciona las historias a incluir en las Release Notes",
-        options=list(story_options.keys()),
-        default=list(story_options.keys()),
-        format_func=lambda x: story_options[x],
-        help="Por defecto se incluyen todas. Puedes desmarcar las que no correspondan a esta versión."
-    )
+    st.markdown("#### Historias a incluir en las Release Notes")
+    st.caption("Por defecto se incluyen todas. Puedes desmarcar las que no correspondan a esta versión.")
+    
+    selected_story_ids = []
+    with st.container(border=True):
+        for s in completed_stories:
+            if st.checkbox(f"**{s.code}**: {s.title}", value=True, key=f"doc_chk_{s.id}"):
+                selected_story_ids.append(s.id)
     
     if not selected_story_ids:
         st.warning("Debes seleccionar al menos una historia para continuar.")
@@ -74,6 +74,16 @@ def render_docs_generator():
             
         if notes and notes.markdown_content:
             st.success("¡Documentación generada con éxito!")
+            
+            # Botón de descarga principal
+            st.download_button(
+                label="⬇️ Descargar archivo Markdown (.md)",
+                data=notes.markdown_content,
+                file_name=f"release_notes_{version_input.replace('.', '_')}.md",
+                mime="text/markdown",
+                type="primary"
+            )
+            
             st.markdown("---")
             
             # Vista previa renderizada
