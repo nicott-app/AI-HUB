@@ -39,9 +39,20 @@ def render_docs_generator():
         st.warning("No hay historias en estado 'Completado' para generar documentación.")
         return
 
-    with st.expander("Ver historias que se incluirán en el documento", expanded=False):
-        for s in completed_stories:
-            st.write(f"- **{s.code}**: {s.title}")
+    story_options = {s.id: f"{s.code}: {s.title}" for s in completed_stories}
+    selected_story_ids = st.multiselect(
+        "Selecciona las historias a incluir en las Release Notes",
+        options=list(story_options.keys()),
+        default=list(story_options.keys()),
+        format_func=lambda x: story_options[x],
+        help="Por defecto se incluyen todas. Puedes desmarcar las que no correspondan a esta versión."
+    )
+    
+    if not selected_story_ids:
+        st.warning("Debes seleccionar al menos una historia para continuar.")
+        return
+        
+    stories_to_include = [s for s in completed_stories if s.id in selected_story_ids]
 
     st.subheader("2. Configura el Documento")
     
@@ -58,8 +69,8 @@ def render_docs_generator():
 
     if st.button("📚 Generar Release Notes", type="primary"):
         llm = LLMService()
-        with st.spinner(f"Redactando Release Notes ({tone_input}) para {len(completed_stories)} historias..."):
-            notes = llm.generate_release_notes(completed_stories, version_input, tone_input)
+        with st.spinner(f"Redactando Release Notes ({tone_input}) para {len(stories_to_include)} historias..."):
+            notes = llm.generate_release_notes(stories_to_include, version_input, tone_input)
             
         if notes and notes.markdown_content:
             st.success("¡Documentación generada con éxito!")
