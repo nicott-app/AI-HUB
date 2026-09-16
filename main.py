@@ -336,14 +336,16 @@ def render_home():
                     card_class = "tool-card card-pending" if is_pending else "tool-card"
                     badge_html = '<div class="badge-pending">Próximamente</div>' if is_pending else ''
                     
-                    st.markdown(f"""<div class="{card_class}">
-                        <div class="card-content">
-                        {badge_html}
-                        <div class="card-icon">{page["icon"]}</div>
-                        <h2 class="card-title">{page["name"].replace(page["icon"]+' ', '')}</h2>
-                        <p class="card-desc">{page["desc"]}</p>
-                        </div>
-                        </div>""", unsafe_allow_html=True)
+                    st.markdown(f"""
+<div class="{card_class}">
+<div class="card-content">
+{badge_html}
+<div class="card-icon">{page["icon"]}</div>
+<h2 class="card-title">{page["name"].replace(page["icon"]+' ', '')}</h2>
+<p class="card-desc">{page["desc"]}</p>
+</div>
+</div>
+""", unsafe_allow_html=True)
 
                     if not is_pending:
                         st.button(
