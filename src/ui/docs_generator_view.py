@@ -40,12 +40,27 @@ def render_docs_generator():
         return
 
     st.markdown("#### Historias a incluir en las Release Notes")
-    st.caption("Por defecto se incluyen todas. Puedes desmarcar las que no correspondan a esta versión.")
+    
+    col_sel, col_desel, _ = st.columns([1, 1, 2])
+    with col_sel:
+        if st.button("✅ Seleccionar todas", use_container_width=True):
+            for s in completed_stories:
+                st.session_state[f"doc_chk_{s.id}"] = True
+    with col_desel:
+        if st.button("❌ Desmarcar todas", use_container_width=True):
+            for s in completed_stories:
+                st.session_state[f"doc_chk_{s.id}"] = False
+
+    st.caption("Puedes marcar o desmarcar individualmente las historias.")
     
     selected_story_ids = []
-    with st.container(border=True):
+    with st.container(border=True, height=350):
         for s in completed_stories:
-            if st.checkbox(f"**{s.code}**: {s.title}", value=True, key=f"doc_chk_{s.id}"):
+            key = f"doc_chk_{s.id}"
+            if key not in st.session_state:
+                st.session_state[key] = True
+                
+            if st.checkbox(f"**{s.code}**: {s.title}", key=key):
                 selected_story_ids.append(s.id)
     
     if not selected_story_ids:
