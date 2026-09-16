@@ -7,8 +7,8 @@ Todos los valores configurables deben vivir aquí, nunca hardcodeados en el cód
 LLM_MODEL = "qwen/qwen3.8-27b"
 LLM_TEMPERATURE_CREATIVE = 0.3   # Para generación creativa (troceador)
 LLM_TEMPERATURE_ANALYTICAL = 0.2 # Para análisis estructurado (priorizadores)
-LLM_MAX_TOKENS_EPIC = 2048
-LLM_MAX_TOKENS_PRIORITIZE = 4000
+LLM_MAX_TOKENS_EPIC = 1500
+LLM_MAX_TOKENS_PRIORITIZE = 1500
 
 # ─── Firebase / Data ───────────────────────────────────────────────────────────
 TICKET_QUERY_LIMIT = 200

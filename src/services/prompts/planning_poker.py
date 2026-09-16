@@ -38,8 +38,8 @@ def build_planning_poker_prompt(stories: list) -> str:
     return prompt
 
 CALL_PARAMS = {
-    "temperature": 0.2,
-    "max_tokens": 4000,
+    "temperature": 0.3,
+    "max_tokens": 1500,
     "response_format": {"type": "json_object"}
 }
 

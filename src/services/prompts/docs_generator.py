@@ -44,7 +44,7 @@ def build_user_prompt(stories: list, version: str, tone: str) -> str:
 
 CALL_PARAMS = {
     "temperature": 0.4,
-    "max_tokens": 4000,
+    "max_tokens": 1500,
     "response_format": {"type": "json_object"}
 }
 

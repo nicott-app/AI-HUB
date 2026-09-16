@@ -38,7 +38,7 @@ Devuelve ÚNICAMENTE un JSON válido que coincida exactamente con esta estructur
 
 CALL_PARAMS = {
     "temperature": 0.3,  # Baja temperatura para asegurar estructura JSON estricta y analítica
-    "max_tokens": 2048,
+    "max_tokens": 1500,
     "response_format": {"type": "json_object"}
 }
 
