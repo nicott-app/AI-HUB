@@ -389,14 +389,16 @@ def render_home():
 
 
 def main() -> None:
+    is_logged_in = "user" in st.session_state
+    
     st.set_page_config(
         page_title="Sprinto AI Hub",
         page_icon="⚡",
-        layout="wide",
-        initial_sidebar_state="expanded"
+        layout="wide" if is_logged_in else "centered",
+        initial_sidebar_state="expanded" if is_logged_in else "collapsed"
     )
 
-    if "user" not in st.session_state:
+    if not is_logged_in:
         from src.ui.auth_view import render_auth_view
         render_auth_view()
         return

@@ -2,169 +2,118 @@ import streamlit as st
 from src.services.auth_service import AuthService
 
 def render_auth_view():
-    st.markdown("""
-        <style>
-        /* Ocultar TODOS los elementos chrome de Streamlit */
-        #MainMenu, footer, 
-        header, 
-        div[data-testid="stHeader"],
-        div[data-testid="stToolbar"],
-        div[data-testid="stDecoration"],
-        div[data-testid="stStatusWidget"] {
-            display: none !important;
-            height: 0 !important;
-            min-height: 0 !important;
-            max-height: 0 !important;
-            overflow: hidden !important;
-        }
-        
-        /* NUCLEAR: Eliminar padding/margin de TODOS los contenedores posibles de Streamlit */
-        .main .block-container,
-        .block-container,
-        div[data-testid="stAppViewBlockContainer"],
-        div.stMainBlockContainer,
-        section.main > div,
-        section[data-testid="stMain"] > div,
-        div[data-testid="stAppViewContainer"] > section > div {
-            padding-top: 1rem !important;
-            margin-top: 0 !important;
-            padding-bottom: 0 !important;
-            max-width: 1100px !important;
-        }
-        
-        /* Asegurar que el stApp no tiene padding superior */
-        .stApp,
-        div[data-testid="stAppViewContainer"] {
-            margin-top: 0 !important;
-            padding-top: 0 !important;
-        }
-        
-        /* Fondo de la página */
-        .stApp {
-            background-color: #f8fafc;
-            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-        
-        /* Ocultar la sidebar en la landing */
-        section[data-testid="stSidebar"] {display: none !important;}
+    # CSS inyectado como primer elemento
+    st.markdown("""<style>
+/* ===== RESET STREAMLIT CHROME ===== */
+#MainMenu, footer, header,
+div[data-testid="stHeader"],
+div[data-testid="stToolbar"],
+div[data-testid="stDecoration"],
+div[data-testid="stStatusWidget"],
+section[data-testid="stSidebar"] {
+    display: none !important;
+    height: 0px !important;
+    min-height: 0px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+}
 
-        /* Estilos de la parte de marca (izquierda) */
-        .brand-section {
-            padding-right: 2rem;
-            padding-top: 3rem;
-        }
-        .brand-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background: #f3e8ff;
-            color: #7c3aed;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-        }
-        .brand-title {
-            font-size: 3.2rem;
-            font-weight: 900;
-            line-height: 1.1;
-            color: #0f172a;
-            margin-bottom: 1rem;
-        }
-        .brand-title span {
-            background: linear-gradient(135deg, #7c3aed, #ea580c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .brand-subtitle {
-            font-size: 1.15rem;
-            color: #475569;
-            margin-bottom: 2rem;
-            line-height: 1.5;
-        }
-        .feature-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .feature-list li {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-            color: #334155;
-            font-size: 1.05rem;
-            font-weight: 500;
-        }
-        .feature-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 2rem;
-            height: 2rem;
-            background: #fff;
-            border-radius: 50%;
-            margin-right: 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            color: #7c3aed;
-        }
+/* ===== RESET TOP PADDING — cubre Streamlit 1.30 a 1.40+ ===== */
+:root {
+    --block-container-padding-top: 1rem !important;
+}
 
-        /* Estilos de la tarjeta de Auth (derecha) */
-        .auth-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2.5rem 2rem 2rem 2rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-            border: 1px solid #f1f5f9;
-            margin-top: 2rem;
-        }
-        
-        .auth-header {
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        .auth-header h3 {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #0f172a;
-            margin: 0 0 0.5rem 0;
-        }
-        .auth-header p {
-            color: #64748b;
-            margin: 0;
-            font-size: 0.95rem;
-        }
-        
-        /* Refinar inputs y botones de Streamlit */
-        div[data-testid="stForm"] {
-            border: none !important;
-            padding: 0 !important;
-        }
-        
-        div[data-baseweb="tab-list"] {
-            gap: 1rem;
-            margin-bottom: 1rem;
-            justify-content: center;
-        }
-        div[data-baseweb="tab-list"] button {
-            padding-left: 1rem;
-            padding-right: 1rem;
-            font-weight: 600;
-        }
-        
-        input {
-            border-radius: 8px !important;
-            background-color: #f8fafc !important;
-            padding: 0.75rem 1rem !important;
-            border: 1px solid #e2e8f0 !important;
-        }
-        input:focus {
-            background-color: #ffffff !important;
-            border-color: #7c3aed !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+.block-container { padding-top: 1rem !important; }
+.stMainBlockContainer { padding-top: 1rem !important; }
+div[data-testid="stAppViewBlockContainer"] { padding-top: 1rem !important; }
+section.main > div.block-container { padding-top: 1rem !important; }
+div[data-testid="stAppViewContainer"] > section > div { padding-top: 1rem !important; }
+
+/* ===== FONDO ===== */
+.stApp {
+    background-color: #f8fafc;
+    background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* ===== BRAND (izquierda) ===== */
+.brand-section { padding-right: 2rem; padding-top: 2rem; }
+.brand-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: #f3e8ff;
+    color: #7c3aed;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+.brand-title {
+    font-size: 3.2rem;
+    font-weight: 900;
+    line-height: 1.1;
+    color: #0f172a;
+    margin-bottom: 1rem;
+}
+.brand-title span {
+    background: linear-gradient(135deg, #7c3aed, #ea580c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.brand-subtitle {
+    font-size: 1.15rem;
+    color: #475569;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+.feature-list { list-style: none; padding: 0; margin: 0; }
+.feature-list li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    color: #334155;
+    font-size: 1.05rem;
+    font-weight: 500;
+}
+.feature-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem; height: 2rem;
+    background: #fff;
+    border-radius: 50%;
+    margin-right: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* ===== AUTH CARD (derecha) ===== */
+.auth-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem 2rem 2rem 2rem;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01);
+    border: 1px solid #f1f5f9;
+    margin-top: 2rem;
+}
+.auth-header { text-align: center; margin-bottom: 1rem; }
+.auth-header h3 { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0 0 0.5rem 0; }
+.auth-header p { color: #64748b; margin: 0; font-size: 0.95rem; }
+
+/* ===== REFINAR INPUTS ===== */
+div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
+div[data-baseweb="tab-list"] { gap: 1rem; margin-bottom: 1rem; justify-content: center; }
+div[data-baseweb="tab-list"] button { padding-left: 1rem; padding-right: 1rem; font-weight: 600; }
+input {
+    border-radius: 8px !important;
+    background-color: #f8fafc !important;
+    padding: 0.75rem 1rem !important;
+    border: 1px solid #e2e8f0 !important;
+}
+input:focus { background-color: #fff !important; border-color: #7c3aed !important; }
+</style>""", unsafe_allow_html=True)
     
-    # Layout directo con columnas de Streamlit (sin wrapper div)
+    # Layout directo con columnas
     col_brand, col_form = st.columns([1.1, 0.9], gap="large")
     
     with col_brand:
