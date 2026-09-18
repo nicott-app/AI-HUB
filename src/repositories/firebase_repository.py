@@ -106,7 +106,12 @@ class FirebaseRepository(TicketRepository):
         if not self._db:
             return [{"id": "mock-project-id", "name": "Proyecto Demo (Sin DB)"}]
         try:
-            docs = self._db.collection("projects").limit(20).stream()
+            import streamlit as st
+            user = st.session_state.get("user")
+            if not user:
+                return []
+                
+            docs = self._db.collection("projects").where("ownerUid", "==", user["uid"]).limit(20).stream()
             return [{"id": p.id, "name": p.to_dict().get("name", p.id)} for p in docs]
         except Exception as e:
             logger.error(f"Error obteniendo proyectos: {e}")
@@ -120,6 +125,10 @@ class FirebaseRepository(TicketRepository):
             return f"fake-proj-{random.randint(1000, 9999)}"
             
         try:
+            import streamlit as st
+            user = st.session_state.get("user")
+            user_uid = user["uid"] if user else None
+            
             from datetime import datetime, timezone
             projects_ref = self._db.collection("projects")
             
@@ -133,6 +142,7 @@ class FirebaseRepository(TicketRepository):
             new_project_data = {
                 "name": project_name,
                 "ticketPrefix": prefix,
+                "ownerUid": user_uid,
                 "createdAt": firestore.SERVER_TIMESTAMP,
                 "visibility": "private",
                 "members": [],

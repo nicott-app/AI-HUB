@@ -318,6 +318,12 @@ def render_sidebar() -> str:
                         # Label deshabilitado para las pendientes
                         st.markdown(f"<div style='padding: 0.4rem 1rem; color:#9ca3af; font-size:0.9rem;'>⏳ {page['name']} <i>(Próximamente)</i></div>", unsafe_allow_html=True)
 
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        if st.button("🚪 Cerrar sesión", key="nav_logout", use_container_width=True):
+            from src.services.auth_service import AuthService
+            AuthService().log_out()
+            st.rerun()
+
     return st.session_state.current_page
 
 
@@ -380,6 +386,11 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="expanded"
     )
+
+    if "user" not in st.session_state:
+        from src.ui.auth_view import render_auth_view
+        render_auth_view()
+        return
 
     inject_nav_css()
     page = render_sidebar()
