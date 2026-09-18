@@ -2,15 +2,16 @@ import streamlit as st
 from src.services.auth_service import AuthService
 
 def render_auth_view():
-    # Ocultar sidebar (único CSS necesario)
+    # Ocultar sidebar y ajustar padding superior
     st.markdown("""<style>
 section[data-testid="stSidebar"] { display: none !important; }
 footer { display: none !important; }
+header { display: none !important; }
+.block-container { padding-top: 2rem !important; padding-bottom: 0rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 </style>""", unsafe_allow_html=True)
 
     # ── Fila 1: Logo + Título ──
-    st.markdown("")  # Espaciador mínimo
     _, logo_col, _ = st.columns([1.5, 1, 1.5])
     with logo_col:
         st.markdown("""
@@ -19,11 +20,9 @@ div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 <span style="font-size: 1.8rem; color: white;">⚡</span>
 </div>
 <h1 style="font-size: 1.8rem; font-weight: 800; color: #0f172a; margin: 0 0 0.25rem 0; letter-spacing: -0.02em;">Sprinto AI Hub</h1>
-<p style="color: #64748b; font-size: 0.95rem; margin: 0;">Gestión ágil potenciada por IA</p>
+<p style="color: #64748b; font-size: 0.95rem; margin: 0; margin-bottom: 1.5rem;">Gestión ágil potenciada por IA</p>
 </div>
 """, unsafe_allow_html=True)
-
-    st.markdown("")  # Espaciador
 
     # ── Fila 2: Formulario centrado ──
     _, form_col, _ = st.columns([1.3, 1.4, 1.3])
@@ -72,7 +71,6 @@ div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
                             st.error(str(e))
 
     # ── Fila 3: Features ──
-    st.markdown("")
     _, feat_col, _ = st.columns([1.2, 1.6, 1.2])
     with feat_col:
         st.divider()
