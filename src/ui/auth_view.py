@@ -1,159 +1,50 @@
 import streamlit as st
-import streamlit.components.v1 as components
 from src.services.auth_service import AuthService
 
-def _inject_reset_padding():
-    """Inyecta JS que elimina el padding superior del contenedor de Streamlit."""
-    components.html("""
-    <script>
-        // Buscar TODOS los posibles contenedores de Streamlit y quitar padding-top
-        const selectors = [
-            '.block-container',
-            '.stMainBlockContainer',
-            '[data-testid="stAppViewBlockContainer"]',
-            'section.main > div',
-            '[data-testid="stMain"] > div',
-            '[data-testid="stAppViewContainer"] > section > div'
-        ];
-        selectors.forEach(sel => {
-            const els = window.parent.document.querySelectorAll(sel);
-            els.forEach(el => {
-                el.style.paddingTop = '1rem';
-                el.style.marginTop = '0';
-            });
-        });
-        
-        // Ocultar header de Streamlit
-        const header = window.parent.document.querySelector('[data-testid="stHeader"]');
-        if (header) { header.style.display = 'none'; }
-        const toolbar = window.parent.document.querySelector('[data-testid="stToolbar"]');
-        if (toolbar) { toolbar.style.display = 'none'; }
-    </script>
-    """, height=0)
-
 def render_auth_view():
-    # 1. Inyectar JS para eliminar el padding
-    _inject_reset_padding()
-    
-    # 2. CSS solo para estilos visuales (NO para layout/padding de Streamlit)
+    # CSS mínimo: solo estilos visuales, SIN intentar modificar layout de Streamlit
     st.markdown("""<style>
-/* Ocultar sidebar y footer */
 section[data-testid="stSidebar"] { display: none !important; }
 footer { display: none !important; }
-
-/* Fondo */
-.stApp {
-    background-color: #f8fafc;
-    background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
-    background-size: 20px 20px;
-}
-
-/* Brand */
-.brand-section { padding-right: 2rem; padding-top: 2rem; }
-.brand-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    background: #f3e8ff;
-    color: #7c3aed;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-}
-.brand-title {
-    font-size: 3.2rem;
-    font-weight: 900;
-    line-height: 1.1;
-    color: #0f172a;
-    margin-bottom: 1rem;
-}
-.brand-title span {
-    background: linear-gradient(135deg, #7c3aed, #ea580c);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-.brand-subtitle {
-    font-size: 1.15rem;
-    color: #475569;
-    margin-bottom: 2rem;
-    line-height: 1.5;
-}
-.feature-list { list-style: none; padding: 0; margin: 0; }
-.feature-list li {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-    color: #334155;
-    font-size: 1.05rem;
-    font-weight: 500;
-}
-.feature-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem; height: 2rem;
-    background: #fff;
-    border-radius: 50%;
-    margin-right: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-/* Auth card */
 .auth-card {
     background: white;
-    border-radius: 20px;
-    padding: 2.5rem 2rem 2rem 2rem;
-    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     border: 1px solid #f1f5f9;
-    margin-top: 2rem;
 }
-.auth-header { text-align: center; margin-bottom: 1rem; }
-.auth-header h3 { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0 0 0.5rem 0; }
-.auth-header p { color: #64748b; margin: 0; font-size: 0.95rem; }
-
-/* Inputs */
+.auth-card h3 { text-align: center; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem; }
+.auth-card p { text-align: center; color: #64748b; font-size: 0.95rem; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
-div[data-baseweb="tab-list"] { gap: 1rem; margin-bottom: 1rem; justify-content: center; }
-div[data-baseweb="tab-list"] button { padding-left: 1rem; padding-right: 1rem; font-weight: 600; }
 input {
     border-radius: 8px !important;
     background-color: #f8fafc !important;
-    padding: 0.75rem 1rem !important;
     border: 1px solid #e2e8f0 !important;
 }
 input:focus { background-color: #fff !important; border-color: #7c3aed !important; }
 </style>""", unsafe_allow_html=True)
-    
-    # 3. Layout con columnas
-    col_brand, col_form = st.columns([1.1, 0.9], gap="large")
-    
-    with col_brand:
+
+    # Cabecera con Streamlit nativo
+    _, col_center, _ = st.columns([1, 2, 1])
+    with col_center:
         st.markdown("""
-<div class="brand-section">
-<div class="brand-badge">✨ Suite de Herramientas AI</div>
-<h1 class="brand-title">Sprinto <span>AI Hub</span></h1>
-<p class="brand-subtitle">
-Transforma tu manera de gestionar el ciclo de vida del software.
-Potencia a tu equipo ágil con Inteligencia Artificial.
-</p>
-<ul class="feature-list">
-<li><span class="feature-icon">🚀</span> Desglose automático de Épicas</li>
-<li><span class="feature-icon">📝</span> Generación de Casos de QA y Release Notes</li>
-<li><span class="feature-icon">🎯</span> Definición de OKRs y Canvas</li>
-<li><span class="feature-icon">🔒</span> Sincronización segura con tu Workspace</li>
-</ul>
+<div style="text-align: center; padding-top: 1rem; padding-bottom: 1rem;">
+<div style="display: inline-block; padding: 0.25rem 0.75rem; background: #f3e8ff; color: #7c3aed; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem;">✨ Suite de Herramientas AI</div>
+<h1 style="font-size: 2.8rem; font-weight: 900; line-height: 1.1; color: #0f172a; margin: 0 0 0.5rem 0;">Sprinto <span style="background: linear-gradient(135deg, #7c3aed, #ea580c); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Hub</span></h1>
+<p style="font-size: 1.1rem; color: #475569; margin: 0;">Potencia a tu equipo ágil con Inteligencia Artificial</p>
 </div>
-        """, unsafe_allow_html=True)
-        
+""", unsafe_allow_html=True)
+
+    # Formulario centrado
+    _, col_form, _ = st.columns([1.2, 1.5, 1.2])
     with col_form:
         st.markdown("""
 <div class="auth-card">
-<div class="auth-header">
 <h3>Bienvenido de nuevo</h3>
 <p>Ingresa tus credenciales para continuar</p>
 </div>
-        """, unsafe_allow_html=True)
-        
+""", unsafe_allow_html=True)
+    
         tab1, tab2 = st.tabs(["Iniciar Sesión", "Registrarse"])
         auth_service = AuthService()
         
@@ -193,5 +84,21 @@ Potencia a tu equipo ágil con Inteligencia Artificial.
                             st.rerun()
                         except Exception as e:
                             st.error(str(e))
-                            
-        st.markdown('</div>', unsafe_allow_html=True)
+
+    # Features debajo del formulario
+    _, col_feat, _ = st.columns([1, 2, 1])
+    with col_feat:
+        st.markdown("---")
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            st.markdown("🚀 **Épicas**")
+            st.caption("Desglose automático")
+        with c2:
+            st.markdown("📝 **QA & Docs**")
+            st.caption("Generación inteligente")
+        with c3:
+            st.markdown("🎯 **OKRs**")
+            st.caption("Definición asistida")
+        with c4:
+            st.markdown("🔒 **Seguro**")
+            st.caption("Datos sincronizados")
