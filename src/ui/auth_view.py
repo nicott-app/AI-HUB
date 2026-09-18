@@ -4,20 +4,23 @@ from src.services.auth_service import AuthService
 def render_auth_view():
     st.markdown("""
         <style>
-        /* Ocultar elementos de Streamlit para simular una landing real SIN DEJAR HUECO */
+        /* Ocultar elementos de Streamlit SIN DEJAR HUECO */
         #MainMenu {display: none !important;}
         header {display: none !important;}
         footer {display: none !important;}
         div[data-testid="stHeader"] {display: none !important;}
+        div[data-testid="stToolbar"] {display: none !important;}
+        div[data-testid="stDecoration"] {display: none !important;}
         
-        /* Eliminar el espacio superior excesivo en todas las versiones de Streamlit */
-        .block-container, 
-        div[data-testid="stAppViewBlockContainer"], 
-        div.stMainBlockContainer {
-            padding-top: 0rem !important;
-            margin-top: -2rem !important;
+        /* Eliminar todo el padding superior de Streamlit */
+        .block-container,
+        div[data-testid="stAppViewBlockContainer"],
+        div.stMainBlockContainer,
+        section[data-testid="stMain"] > div {
+            padding-top: 1rem !important;
+            margin-top: 0 !important;
             padding-bottom: 0 !important;
-            max-width: 1200px !important;
+            max-width: 1100px !important;
         }
         
         /* Fondo de la página */
@@ -26,21 +29,14 @@ def render_auth_view():
             background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
             background-size: 20px 20px;
         }
-
-        /* Contenedor principal para centrar verticalmente */
-        .landing-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 75vh;
-            padding: 1rem 2rem;
-            margin-top: 2rem;
-        }
+        
+        /* Ocultar la sidebar en la landing */
+        section[data-testid="stSidebar"] {display: none !important;}
 
         /* Estilos de la parte de marca (izquierda) */
         .brand-section {
-            padding-right: 3rem;
-            margin-top: 2rem;
+            padding-right: 2rem;
+            padding-top: 3rem;
         }
         .brand-badge {
             display: inline-block;
@@ -53,7 +49,7 @@ def render_auth_view():
             margin-bottom: 1.5rem;
         }
         .brand-title {
-            font-size: 3.5rem;
+            font-size: 3.2rem;
             font-weight: 900;
             line-height: 1.1;
             color: #0f172a;
@@ -65,7 +61,7 @@ def render_auth_view():
             -webkit-text-fill-color: transparent;
         }
         .brand-subtitle {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             color: #475569;
             margin-bottom: 2rem;
             line-height: 1.5;
@@ -80,7 +76,7 @@ def render_auth_view():
             align-items: center;
             margin-bottom: 1rem;
             color: #334155;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 500;
         }
         .feature-icon {
@@ -103,6 +99,7 @@ def render_auth_view():
             padding: 2.5rem 2rem 2rem 2rem;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
             border: 1px solid #f1f5f9;
+            margin-top: 2rem;
         }
         
         .auth-header {
@@ -121,7 +118,7 @@ def render_auth_view():
             font-size: 0.95rem;
         }
         
-        /* Refinar inputs y botones de Streamlit dentro del form */
+        /* Refinar inputs y botones de Streamlit */
         div[data-testid="stForm"] {
             border: none !important;
             padding: 0 !important;
@@ -151,35 +148,34 @@ def render_auth_view():
         </style>
     """, unsafe_allow_html=True)
     
-    st.markdown('<div class="landing-wrapper">', unsafe_allow_html=True)
-    
+    # Layout directo con columnas de Streamlit (sin wrapper div)
     col_brand, col_form = st.columns([1.1, 0.9], gap="large")
     
     with col_brand:
         st.markdown("""
-            <div class="brand-section">
-                <div class="brand-badge">✨ Suite de Herramientas AI</div>
-                <h1 class="brand-title">Sprinto <span>AI Hub</span></h1>
-                <p class="brand-subtitle">
-                    Transforma tu manera de gestionar el ciclo de vida del software. 
-                    Potencia a tu equipo ágil con Inteligencia Artificial.
-                </p>
-                <ul class="feature-list">
-                    <li><span class="feature-icon">🚀</span> Desglose automático de Épicas</li>
-                    <li><span class="feature-icon">📝</span> Generación de Casos de QA y Release Notes</li>
-                    <li><span class="feature-icon">🎯</span> Definición de OKRs y Canvas</li>
-                    <li><span class="feature-icon">🔒</span> Sincronización segura con tu Workspace</li>
-                </ul>
-            </div>
+<div class="brand-section">
+<div class="brand-badge">✨ Suite de Herramientas AI</div>
+<h1 class="brand-title">Sprinto <span>AI Hub</span></h1>
+<p class="brand-subtitle">
+Transforma tu manera de gestionar el ciclo de vida del software.
+Potencia a tu equipo ágil con Inteligencia Artificial.
+</p>
+<ul class="feature-list">
+<li><span class="feature-icon">🚀</span> Desglose automático de Épicas</li>
+<li><span class="feature-icon">📝</span> Generación de Casos de QA y Release Notes</li>
+<li><span class="feature-icon">🎯</span> Definición de OKRs y Canvas</li>
+<li><span class="feature-icon">🔒</span> Sincronización segura con tu Workspace</li>
+</ul>
+</div>
         """, unsafe_allow_html=True)
         
     with col_form:
-        st.markdown('<div class="auth-card">', unsafe_allow_html=True)
         st.markdown("""
-            <div class="auth-header">
-                <h3>Bienvenido de nuevo</h3>
-                <p>Ingresa tus credenciales para continuar</p>
-            </div>
+<div class="auth-card">
+<div class="auth-header">
+<h3>Bienvenido de nuevo</h3>
+<p>Ingresa tus credenciales para continuar</p>
+</div>
         """, unsafe_allow_html=True)
         
         tab1, tab2 = st.tabs(["Iniciar Sesión", "Registrarse"])
@@ -223,5 +219,3 @@ def render_auth_view():
                             st.error(str(e))
                             
         st.markdown('</div>', unsafe_allow_html=True)
-        
-    st.markdown('</div>', unsafe_allow_html=True)
