@@ -4,14 +4,18 @@ from src.services.auth_service import AuthService
 def render_auth_view():
     st.markdown("""
         <style>
-        /* Ocultar elementos de Streamlit para simular una landing real */
-        #MainMenu {visibility: hidden;}
-        header {visibility: hidden;}
-        footer {visibility: hidden;}
+        /* Ocultar elementos de Streamlit para simular una landing real SIN DEJAR HUECO */
+        #MainMenu {display: none !important;}
+        header {display: none !important;}
+        footer {display: none !important;}
+        div[data-testid="stHeader"] {display: none !important;}
         
-        /* Eliminar el espacio superior excesivo */
-        .block-container {
-            padding-top: 2rem !important;
+        /* Eliminar el espacio superior excesivo en todas las versiones de Streamlit */
+        .block-container, 
+        div[data-testid="stAppViewBlockContainer"], 
+        div.stMainBlockContainer {
+            padding-top: 0rem !important;
+            margin-top: -2rem !important;
             padding-bottom: 0 !important;
             max-width: 1200px !important;
         }
@@ -28,8 +32,9 @@ def render_auth_view():
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 85vh;
+            min-height: 75vh;
             padding: 1rem 2rem;
+            margin-top: 2rem;
         }
 
         /* Estilos de la parte de marca (izquierda) */
