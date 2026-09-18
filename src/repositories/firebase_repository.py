@@ -111,8 +111,27 @@ class FirebaseRepository(TicketRepository):
             if not user:
                 return []
                 
-            docs = self._db.collection("projects").where("ownerUid", "==", user["uid"]).limit(20).stream()
-            return [{"id": p.id, "name": p.to_dict().get("name", p.id)} for p in docs]
+            user_uid = user["uid"]
+            docs = self._db.collection("projects").stream()
+            
+            allowed_projects = []
+            for doc in docs:
+                data = doc.to_dict()
+                is_owner = data.get("ownerUid") == user_uid
+                
+                # Check if user is in members list [{'id': 'uid', ...}]
+                is_member = False
+                for member in data.get("members", []):
+                    if isinstance(member, dict) and member.get("id") == user_uid:
+                        is_member = True
+                        break
+                        
+                if is_owner or is_member:
+                    allowed_projects.append({"id": doc.id, "name": data.get("name", doc.id)})
+                    
+            # Ordenar alfabéticamente
+            allowed_projects.sort(key=lambda x: x["name"].lower())
+            return allowed_projects
         except Exception as e:
             logger.error(f"Error obteniendo proyectos: {e}")
             return [{"id": "mock-project-id", "name": "Proyecto Demo (Error)"}]
