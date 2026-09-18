@@ -9,6 +9,13 @@ def render_auth_view():
         header {visibility: hidden;}
         footer {visibility: hidden;}
         
+        /* Eliminar el espacio superior excesivo */
+        .block-container {
+            padding-top: 2rem !important;
+            padding-bottom: 0 !important;
+            max-width: 1200px !important;
+        }
+        
         /* Fondo de la página */
         .stApp {
             background-color: #f8fafc;
@@ -21,13 +28,14 @@ def render_auth_view():
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 80vh;
-            padding: 2rem;
+            min-height: 85vh;
+            padding: 1rem 2rem;
         }
 
         /* Estilos de la parte de marca (izquierda) */
         .brand-section {
             padding-right: 3rem;
+            margin-top: 2rem;
         }
         .brand-badge {
             display: inline-block;
@@ -86,26 +94,54 @@ def render_auth_view():
         /* Estilos de la tarjeta de Auth (derecha) */
         .auth-card {
             background: white;
-            border-radius: 24px;
-            padding: 2.5rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 2.5rem 2rem 2rem 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border: 1px solid #f1f5f9;
         }
         
         .auth-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
         .auth-header h3 {
             font-size: 1.5rem;
-            font-weight: 700;
-            color: #1e293b;
+            font-weight: 800;
+            color: #0f172a;
             margin: 0 0 0.5rem 0;
         }
         .auth-header p {
             color: #64748b;
             margin: 0;
             font-size: 0.95rem;
+        }
+        
+        /* Refinar inputs y botones de Streamlit dentro del form */
+        div[data-testid="stForm"] {
+            border: none !important;
+            padding: 0 !important;
+        }
+        
+        div[data-baseweb="tab-list"] {
+            gap: 1rem;
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
+        div[data-baseweb="tab-list"] button {
+            padding-left: 1rem;
+            padding-right: 1rem;
+            font-weight: 600;
+        }
+        
+        input {
+            border-radius: 8px !important;
+            background-color: #f8fafc !important;
+            padding: 0.75rem 1rem !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        input:focus {
+            background-color: #ffffff !important;
+            border-color: #7c3aed !important;
         }
         </style>
     """, unsafe_allow_html=True)

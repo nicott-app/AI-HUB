@@ -319,7 +319,16 @@ def render_sidebar() -> str:
                         st.markdown(f"<div style='padding: 0.4rem 1rem; color:#9ca3af; font-size:0.9rem;'>⏳ {page['name']} <i>(Próximamente)</i></div>", unsafe_allow_html=True)
 
         st.markdown("<br><br>", unsafe_allow_html=True)
-        if st.button("🚪 Cerrar sesión", key="nav_logout", use_container_width=True):
+        # CSS para poner rojo el texto y el icono del botón de Cerrar Sesión
+        st.markdown("""
+            <style>
+            div[data-testid="stButton"] button p:contains("Cerrar Sesión") {
+                color: #ef4444 !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+        
+        if st.button("Cerrar Sesión", icon=":material/logout:", key="nav_logout", use_container_width=True):
             from src.services.auth_service import AuthService
             AuthService().log_out()
             st.rerun()
