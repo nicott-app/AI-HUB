@@ -19,6 +19,10 @@ class AuthService:
         if not self.api_key:
             self.api_key = os.getenv("FIREBASE_WEB_API_KEY")
             
+        # 3. Fallback directo (Web API Key es pública por diseño en Firebase)
+        if not self.api_key:
+            self.api_key = "AIzaSyD8ZFp_ooUO7vY-sTXdX3vccMh7QNPyrUI"
+            
         if not self.api_key:
             raise ValueError("No se ha encontrado FIREBASE_WEB_API_KEY en la configuración.")
 
