@@ -1,43 +1,54 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from src.services.auth_service import AuthService
 
+def _inject_reset_padding():
+    """Inyecta JS que elimina el padding superior del contenedor de Streamlit."""
+    components.html("""
+    <script>
+        // Buscar TODOS los posibles contenedores de Streamlit y quitar padding-top
+        const selectors = [
+            '.block-container',
+            '.stMainBlockContainer',
+            '[data-testid="stAppViewBlockContainer"]',
+            'section.main > div',
+            '[data-testid="stMain"] > div',
+            '[data-testid="stAppViewContainer"] > section > div'
+        ];
+        selectors.forEach(sel => {
+            const els = window.parent.document.querySelectorAll(sel);
+            els.forEach(el => {
+                el.style.paddingTop = '1rem';
+                el.style.marginTop = '0';
+            });
+        });
+        
+        // Ocultar header de Streamlit
+        const header = window.parent.document.querySelector('[data-testid="stHeader"]');
+        if (header) { header.style.display = 'none'; }
+        const toolbar = window.parent.document.querySelector('[data-testid="stToolbar"]');
+        if (toolbar) { toolbar.style.display = 'none'; }
+    </script>
+    """, height=0)
+
 def render_auth_view():
-    # CSS inyectado como primer elemento
+    # 1. Inyectar JS para eliminar el padding
+    _inject_reset_padding()
+    
+    # 2. CSS solo para estilos visuales (NO para layout/padding de Streamlit)
     st.markdown("""<style>
-/* ===== RESET STREAMLIT CHROME ===== */
-#MainMenu, footer, header,
-div[data-testid="stHeader"],
-div[data-testid="stToolbar"],
-div[data-testid="stDecoration"],
-div[data-testid="stStatusWidget"],
-section[data-testid="stSidebar"] {
-    display: none !important;
-    height: 0px !important;
-    min-height: 0px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    overflow: hidden !important;
-}
+/* Ocultar sidebar y footer */
+section[data-testid="stSidebar"] { display: none !important; }
+footer { display: none !important; }
 
-/* ===== RESET TOP PADDING — cubre Streamlit 1.30 a 1.40+ ===== */
-:root {
-    --block-container-padding-top: 1rem !important;
-}
-
-.block-container { padding-top: 1rem !important; }
-.stMainBlockContainer { padding-top: 1rem !important; }
-div[data-testid="stAppViewBlockContainer"] { padding-top: 1rem !important; }
-section.main > div.block-container { padding-top: 1rem !important; }
-div[data-testid="stAppViewContainer"] > section > div { padding-top: 1rem !important; }
-
-/* ===== FONDO ===== */
+/* Fondo */
 .stApp {
     background-color: #f8fafc;
     background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
     background-size: 20px 20px;
 }
 
-/* ===== BRAND (izquierda) ===== */
+/* Brand */
 .brand-section { padding-right: 2rem; padding-top: 2rem; }
 .brand-badge {
     display: inline-block;
@@ -87,7 +98,7 @@ div[data-testid="stAppViewContainer"] > section > div { padding-top: 1rem !impor
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-/* ===== AUTH CARD (derecha) ===== */
+/* Auth card */
 .auth-card {
     background: white;
     border-radius: 20px;
@@ -100,7 +111,7 @@ div[data-testid="stAppViewContainer"] > section > div { padding-top: 1rem !impor
 .auth-header h3 { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0 0 0.5rem 0; }
 .auth-header p { color: #64748b; margin: 0; font-size: 0.95rem; }
 
-/* ===== REFINAR INPUTS ===== */
+/* Inputs */
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 div[data-baseweb="tab-list"] { gap: 1rem; margin-bottom: 1rem; justify-content: center; }
 div[data-baseweb="tab-list"] button { padding-left: 1rem; padding-right: 1rem; font-weight: 600; }
@@ -113,7 +124,7 @@ input {
 input:focus { background-color: #fff !important; border-color: #7c3aed !important; }
 </style>""", unsafe_allow_html=True)
     
-    # Layout directo con columnas
+    # 3. Layout con columnas
     col_brand, col_form = st.columns([1.1, 0.9], gap="large")
     
     with col_brand:

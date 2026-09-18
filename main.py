@@ -394,7 +394,7 @@ def main() -> None:
     st.set_page_config(
         page_title="Sprinto AI Hub",
         page_icon="⚡",
-        layout="wide" if is_logged_in else "centered",
+        layout="wide",
         initial_sidebar_state="expanded" if is_logged_in else "collapsed"
     )
 
