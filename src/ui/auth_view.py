@@ -4,23 +4,39 @@ from src.services.auth_service import AuthService
 def render_auth_view():
     st.markdown("""
         <style>
-        /* Ocultar elementos de Streamlit SIN DEJAR HUECO */
-        #MainMenu {display: none !important;}
-        header {display: none !important;}
-        footer {display: none !important;}
-        div[data-testid="stHeader"] {display: none !important;}
-        div[data-testid="stToolbar"] {display: none !important;}
-        div[data-testid="stDecoration"] {display: none !important;}
+        /* Ocultar TODOS los elementos chrome de Streamlit */
+        #MainMenu, footer, 
+        header, 
+        div[data-testid="stHeader"],
+        div[data-testid="stToolbar"],
+        div[data-testid="stDecoration"],
+        div[data-testid="stStatusWidget"] {
+            display: none !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            max-height: 0 !important;
+            overflow: hidden !important;
+        }
         
-        /* Eliminar todo el padding superior de Streamlit */
+        /* NUCLEAR: Eliminar padding/margin de TODOS los contenedores posibles de Streamlit */
+        .main .block-container,
         .block-container,
         div[data-testid="stAppViewBlockContainer"],
         div.stMainBlockContainer,
-        section[data-testid="stMain"] > div {
+        section.main > div,
+        section[data-testid="stMain"] > div,
+        div[data-testid="stAppViewContainer"] > section > div {
             padding-top: 1rem !important;
             margin-top: 0 !important;
             padding-bottom: 0 !important;
             max-width: 1100px !important;
+        }
+        
+        /* Asegurar que el stApp no tiene padding superior */
+        .stApp,
+        div[data-testid="stAppViewContainer"] {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
         }
         
         /* Fondo de la página */
