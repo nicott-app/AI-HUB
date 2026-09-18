@@ -4,45 +4,151 @@ from src.services.auth_service import AuthService
 def render_auth_view():
     st.markdown("""
         <style>
-        .auth-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            text-align: center;
+        /* Ocultar elementos de Streamlit para simular una landing real */
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
+        
+        /* Fondo de la página */
+        .stApp {
+            background-color: #f8fafc;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
         }
-        .auth-title {
-            font-size: 2rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, #7c3aed, #ea580c);
+
+        /* Contenedor principal para centrar verticalmente */
+        .landing-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            padding: 2rem;
+        }
+
+        /* Estilos de la parte de marca (izquierda) */
+        .brand-section {
+            padding-right: 3rem;
+        }
+        .brand-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #f3e8ff;
+            color: #7c3aed;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        .brand-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            color: #0f172a;
+            margin-bottom: 1rem;
+        }
+        .brand-title span {
+            background: linear-gradient(135deg, #7c3aed, #ea580c);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
         }
-        .auth-subtitle {
-            color: #6b7280;
+        .brand-subtitle {
+            font-size: 1.25rem;
+            color: #475569;
             margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #334155;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        .feature-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            background: #fff;
+            border-radius: 50%;
+            margin-right: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            color: #7c3aed;
+        }
+
+        /* Estilos de la tarjeta de Auth (derecha) */
+        .auth-card {
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .auth-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 0.5rem 0;
+        }
+        .auth-header p {
+            color: #64748b;
+            margin: 0;
+            font-size: 0.95rem;
         }
         </style>
     """, unsafe_allow_html=True)
     
-    st.markdown('<div class="auth-container">', unsafe_allow_html=True)
-    st.markdown('<div class="auth-title">AI Hub</div>', unsafe_allow_html=True)
-    st.markdown('<div class="auth-subtitle">Inicia sesión para acceder a tus proyectos</div>', unsafe_allow_html=True)
+    st.markdown('<div class="landing-wrapper">', unsafe_allow_html=True)
     
-    # We use a container to visually group the form
-    with st.container():
-        tab1, tab2 = st.tabs(["Iniciar Sesión", "Registrarse"])
+    col_brand, col_form = st.columns([1.1, 0.9], gap="large")
+    
+    with col_brand:
+        st.markdown("""
+            <div class="brand-section">
+                <div class="brand-badge">✨ Suite de Herramientas AI</div>
+                <h1 class="brand-title">Sprinto <span>AI Hub</span></h1>
+                <p class="brand-subtitle">
+                    Transforma tu manera de gestionar el ciclo de vida del software. 
+                    Potencia a tu equipo ágil con Inteligencia Artificial.
+                </p>
+                <ul class="feature-list">
+                    <li><span class="feature-icon">🚀</span> Desglose automático de Épicas</li>
+                    <li><span class="feature-icon">📝</span> Generación de Casos de QA y Release Notes</li>
+                    <li><span class="feature-icon">🎯</span> Definición de OKRs y Canvas</li>
+                    <li><span class="feature-icon">🔒</span> Sincronización segura con tu Workspace</li>
+                </ul>
+            </div>
+        """, unsafe_allow_html=True)
         
+    with col_form:
+        st.markdown('<div class="auth-card">', unsafe_allow_html=True)
+        st.markdown("""
+            <div class="auth-header">
+                <h3>Bienvenido de nuevo</h3>
+                <p>Ingresa tus credenciales para continuar</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        tab1, tab2 = st.tabs(["Iniciar Sesión", "Registrarse"])
         auth_service = AuthService()
         
         with tab1:
-            with st.form("login_form"):
+            with st.form("login_form", border=False):
                 email = st.text_input("Correo electrónico", placeholder="ejemplo@empresa.com")
-                password = st.text_input("Contraseña", type="password")
-                submitted = st.form_submit_button("Entrar", type="primary", use_container_width=True)
+                password = st.text_input("Contraseña", type="password", placeholder="••••••••")
+                submitted = st.form_submit_button("Entrar al Hub", type="primary", use_container_width=True)
                 
                 if submitted:
                     if not email or not password:
@@ -55,10 +161,10 @@ def render_auth_view():
                             st.error(str(e))
                             
         with tab2:
-            with st.form("signup_form"):
+            with st.form("signup_form", border=False):
                 reg_email = st.text_input("Correo electrónico", placeholder="ejemplo@empresa.com")
-                reg_password = st.text_input("Contraseña", type="password", help="Mínimo 6 caracteres")
-                reg_password_confirm = st.text_input("Confirmar Contraseña", type="password")
+                reg_password = st.text_input("Contraseña", type="password", placeholder="Mínimo 6 caracteres")
+                reg_password_confirm = st.text_input("Confirmar Contraseña", type="password", placeholder="••••••••")
                 reg_submitted = st.form_submit_button("Crear cuenta", type="primary", use_container_width=True)
                 
                 if reg_submitted:
@@ -75,4 +181,6 @@ def render_auth_view():
                         except Exception as e:
                             st.error(str(e))
                             
+        st.markdown('</div>', unsafe_allow_html=True)
+        
     st.markdown('</div>', unsafe_allow_html=True)
