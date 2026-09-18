@@ -319,19 +319,7 @@ def render_sidebar() -> str:
                         st.markdown(f"<div style='padding: 0.4rem 1rem; color:#9ca3af; font-size:0.9rem;'>⏳ {page['name']} <i>(Próximamente)</i></div>", unsafe_allow_html=True)
 
         st.markdown("<br><br>", unsafe_allow_html=True)
-        # CSS para poner rojo el texto y el icono del botón de Cerrar Sesión
-        st.markdown("""
-            <style>
-            div[data-testid="stButton"] button p:contains("Cerrar Sesión") {
-                color: #ef4444 !important;
-            }
-            </style>
-        """, unsafe_allow_html=True)
-        
-        if st.button("Cerrar Sesión", icon=":material/logout:", key="nav_logout", use_container_width=True):
-            from src.services.auth_service import AuthService
-            AuthService().log_out()
-            st.rerun()
+        # Logout button removed as per user request
 
     return st.session_state.current_page
 
@@ -389,19 +377,22 @@ def render_home():
 
 
 def main() -> None:
-    is_logged_in = "user" in st.session_state
-    
     st.set_page_config(
         page_title="Sprinto AI Hub",
         page_icon="⚡",
         layout="wide",
-        initial_sidebar_state="expanded" if is_logged_in else "collapsed"
+        initial_sidebar_state="expanded"
     )
 
-    if not is_logged_in:
-        from src.ui.auth_view import render_auth_view
-        render_auth_view()
-        return
+    # Eliminar la página de auth y mostrar el hub directamente
+    
+    # Mockear un usuario si la app sigue dependiendo de él temporalmente
+    if "user" not in st.session_state:
+        st.session_state.user = {
+            "uid": "OdFBPw4aGLMAK5MVAXX3jyKPJYx1", # El ID de Nicolás que vimos en la DB
+            "email": "nicolas@example.com",
+            "displayName": "Nicolás Tercero"
+        }
 
     inject_nav_css()
     page = render_sidebar()
