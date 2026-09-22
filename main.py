@@ -29,26 +29,40 @@ MODULES = {
 def inject_nav_css():
     st.markdown("""
         <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap');
+        @import url('https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css');
+
+        /* Aplicar fuentes globales */
+        html, body, [class*="css"] {
+            font-family: 'Inter', sans-serif !important;
+        }
+        h1, h2, h3, .nav-logo, .home-title, .card-title {
+            font-family: 'Geist', 'Inter', sans-serif !important;
+        }
+        .nav-subtitle, .badge-pending, code {
+            font-family: 'JetBrains Mono', monospace !important;
+        }
+
         /* Ocultar elementos nativos innecesarios */
         #MainMenu, footer, header { visibility: hidden; }
 
         /* Sidebar — fondo claro con borde derecho sutil */
         section[data-testid="stSidebar"] > div:first-child {
-            background: #f8f9ff;
-            border-right: 1px solid #e2e5f1;
+            background: #f8f9fc;
+            border-right: 1px solid #e2e8f0;
             padding: 0;
         }
 
         /* Cabecera del sidebar */
         .nav-header {
             padding: 2rem 1.5rem 1.5rem;
-            border-bottom: 1px solid #e2e5f1;
+            border-bottom: 1px solid #e2e8f0;
             margin-bottom: 0.5rem;
         }
         .nav-logo {
             font-size: 1.4rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #5a6fd6 0%, #8b5cf6 100%);
+            background: linear-gradient(135deg, #006d3e 0%, #16a34a 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -57,7 +71,7 @@ def inject_nav_css():
         }
         .nav-subtitle {
             font-size: 0.65rem;
-            color: #9ca3af;
+            color: #94a3b8;
             margin-top: 3px;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -71,12 +85,13 @@ def inject_nav_css():
             left: 0; right: 0;
             padding: 5px 1.5rem;
             font-size: 0.65rem;
-            color: #9ca3af;
+            color: #94a3b8;
             text-align: center;
             background: rgba(255,255,255,0.85);
             backdrop-filter: blur(4px);
-            border-top: 1px solid #e2e5f1;
+            border-top: 1px solid #e2e8f0;
             z-index: 999;
+            font-family: 'JetBrains Mono', monospace !important;
         }
 
         /* Área principal */
@@ -84,28 +99,31 @@ def inject_nav_css():
             padding-top: 2rem !important;
             max-width: 1200px;
             padding-bottom: 2rem !important;
+            background: #f4f5f8;
         }
         
         /* ─── ESTILO BOTONES PRINCIPALES Y NAVEGACIÓN ─── */
         button[kind="primary"] {
-            background: linear-gradient(90deg, #7c3aed, #ea580c) !important;
-            border: none !important;
-            border-radius: 8px !important;
+            background: #006d3e !important;
+            border: 1px solid #00522d !important;
+            border-radius: 6px !important;
             color: white !important;
-            font-weight: 600 !important;
-            transition: opacity 0.2s !important;
+            font-weight: 500 !important;
+            transition: background 0.2s !important;
+            font-family: 'Inter', sans-serif !important;
         }
         button[kind="primary"]:hover {
-            opacity: 0.9 !important;
+            background: #16a34a !important;
+            border-color: #16a34a !important;
         }
         
-        /* Botón de navegación ACTIVO (Primary) en el sidebar - Color tenue */
+        /* Botón de navegación ACTIVO (Primary) en el sidebar */
         section[data-testid="stSidebar"] button[kind="primary"] {
-            background: #f3e8ff !important; /* Morado muy claro/tenue */
-            color: #7c3aed !important;      /* Texto morado corporativo */
-            border: none !important;
+            background: #86efac !important; /* Primary Container */
+            color: #00210f !important;      /* On Primary Fixed */
+            border: 1px solid #73db9a !important;
             box-shadow: none !important;
-            font-weight: 700 !important;
+            font-weight: 600 !important;
             min-height: 2.2rem !important;
             padding-top: 0.1rem !important;
             padding-bottom: 0.1rem !important;
@@ -123,7 +141,6 @@ def inject_nav_css():
             padding-bottom: 0.1rem !important;
         }
         
-        /* Botón de Inicio (y cualquier botón fuera de secciones): centrado */
         section[data-testid="stSidebar"] button {
             justify-content: center !important;
             padding-left: 0 !important;
@@ -134,7 +151,6 @@ def inject_nav_css():
             justify-content: center !important;
         }
 
-        /* Botones dentro de las secciones (expanders): alineados a la izquierda */
         section[data-testid="stSidebar"] [data-testid="stExpander"] button {
             justify-content: flex-start !important;
             padding-left: 1rem !important;
@@ -146,14 +162,14 @@ def inject_nav_css():
         }
 
         section[data-testid="stSidebar"] div.stButton {
-            margin-bottom: -0.5rem !important; /* Reduce el espacio vertical entre botones */
+            margin-bottom: -0.5rem !important;
         }
         section[data-testid="stSidebar"] button[kind="secondary"]:hover {
-            background: #f3f4f6 !important;
+            background: #e2e8f0 !important;
             color: #111827 !important;
         }
         
-        /* Eliminar bordes de los expanders (secciones) en el sidebar */
+        /* Eliminar bordes de los expanders */
         section[data-testid="stSidebar"] [data-testid="stExpander"] {
             border: none !important;
             box-shadow: none !important;
@@ -162,15 +178,16 @@ def inject_nav_css():
         section[data-testid="stSidebar"] [data-testid="stExpander"] > details {
             border: none !important;
         }
-        /* Añadir borde de color sutil (estilo ribbon) al título de las secciones */
+        /* Añadir borde verde corporativo al título de las secciones */
         section[data-testid="stSidebar"] [data-testid="stExpander"] details summary {
-            border-left: 3px solid #7c3aed !important;
+            border-left: 3px solid #006d3e !important;
             padding-left: 0.75rem !important;
             margin-bottom: 0.2rem !important;
             border-radius: 0 !important;
+            color: #111827 !important;
+            font-family: 'Geist', sans-serif !important;
         }
         
-        /* Añadir un margen interno al contenido del expander para indentar las herramientas */
         section[data-testid="stSidebar"] [data-testid="stExpanderDetails"] {
             padding-left: 1rem !important;
             padding-right: 0 !important;
@@ -181,39 +198,38 @@ def inject_nav_css():
         .home-container {
             text-align: center;
             padding: 2rem 0 2rem;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
         .home-title {
             font-size: 3.5rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, #7c3aed, #ea580c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            color: #111827;
             margin-bottom: 0.5rem;
-            line-height: 1.2;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
         }
         .home-subtitle {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: #4b5563;
             margin-bottom: 2rem;
             font-weight: 400;
+            font-family: 'Inter', sans-serif;
         }
         .tool-card {
-            background: white;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             width: 100%;
             height: 260px !important;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
             margin-bottom: 1rem;
         }
         .tool-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
         .card-content {
             padding: 1.5rem 1rem 2rem;
@@ -232,12 +248,12 @@ def inject_nav_css():
         }
         .card-title {
             font-size: 0.95rem;
-            font-weight: 700;
+            font-weight: 600;
             margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #1f2937;
+            color: #111827;
             line-height: 1.3;
         }
         .card-desc {
@@ -249,17 +265,19 @@ def inject_nav_css():
         }
         .card-pending {
             opacity: 0.6;
-            background: #f9fafb;
+            background: #f8f9fc;
         }
         .badge-pending {
-            background: #e5e7eb;
+            background: #e2e8f0;
             color: #4b5563;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             padding: 2px 8px;
-            border-radius: 10px;
+            border-radius: 4px;
             font-weight: 600;
             text-transform: uppercase;
             margin-bottom: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            border: 1px solid #cbd5e1;
         }
         </style>
     """, unsafe_allow_html=True)
