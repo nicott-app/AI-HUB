@@ -10,7 +10,7 @@ export default function Footer() {
               <img 
                 alt="Sprinto logo" 
                 className="h-6 w-auto object-contain" 
-                src="https://lh3.googleusercontent.com/aida/AEtjO1XXOH2hGlUoSCNWpAMyUdHI2gR-qwoFwjE8-MweI1y6OhnuJcQol32L_9rpYjr141hZ47Ckyf1T623I944jQEMNkujZZo1Z3j5VnCLXlGJN1LzqNqrT63mbYyosZa26f50j8buytaf3lcXVjkpJMZP00bIo2Qc-DYYVH-l3vz5K-FYTy_W_dmED9xaSIPCF02_S0-rzKrUY2NZMWW5BqiSd-nMzze1fHhgWnjXZX1TinTnCyZ5L6_qBBtQ" 
+                src="https://sprinto-board.web.app/sprinto-logo.svg" 
               />
               <span className="font-headline-sm text-headline-sm tracking-tight text-text-primary">Sprinto</span>
               <span className="font-label-code text-label-code bg-surface-container px-space-xs py-0.5 rounded text-text-secondary border border-border-subtle">AI</span>

@@ -289,11 +289,11 @@ def change_page(new_page: str):
 def render_sidebar() -> str:
     """Renderiza la navegación lateral dividida en módulos."""
     with st.sidebar:
-        # Cabecera con logo circular ⚡
+        # Cabecera con logo de Sprinto
         st.markdown("""
             <div class="nav-header">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 2px;">
-                    <div style="background: linear-gradient(135deg, #7c3aed, #ea580c); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1.2rem; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">⚡</div>
+                    <img src="https://sprinto-board.web.app/sprinto-logo.svg" alt="Sprinto Logo" style="width: 34px; height: 34px; object-fit: contain;" />
                     <div>
                         <div class="nav-logo">Sprinto AI Hub</div>
                         <div class="nav-subtitle">Intelligent Agile Tooling</div>
@@ -397,7 +397,7 @@ def render_home():
 def main() -> None:
     st.set_page_config(
         page_title="Sprinto AI Hub",
-        page_icon="⚡",
+        page_icon="https://sprinto-board.web.app/sprinto-logo.svg",
         layout="wide",
         initial_sidebar_state="expanded"
     )
